@@ -6,6 +6,7 @@ import app.io.nodes.input.InputNode;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.users.User;
 import lombok.Getter;
@@ -20,12 +21,15 @@ public class Wrapped implements Executable {
     User user = Library.getInstance().getUserByName(command.getUsername());
     out.getResult().setTopSongs(user.getHistory().getTop5Songs());
     out.getResult().setTopEpisodes(user.getHistory().getTop5Episodes());
+    out.getResult().setTopAlbums(user.getHistory().getTop5Albums());
+    out.getResult().setTopGenres(user.getHistory().getTop5Genres());
 
     return out;
   }
 
   @Getter
   @Setter
+  @JsonPropertyOrder({"command", "user", "timestamp", "result"})
   private static class WrappedOutputNode extends Node {
     private String user;
     private Result result;

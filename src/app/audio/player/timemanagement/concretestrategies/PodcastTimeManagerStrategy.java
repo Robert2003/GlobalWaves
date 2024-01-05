@@ -35,7 +35,6 @@ public final class PodcastTimeManagerStrategy extends TimeManagerStrategy {
       setElapsedTime((getElapsedTime() + timeToFinish) % podcast.getDuration());
 
       Episode currentEpisode = (Episode) getPlayingAudioEntity(audioPlayer);
-      System.out.println(currentEpisode.getType());
       history.add(currentEpisode);
       timeToAddCopy -= timeToFinish;
     }

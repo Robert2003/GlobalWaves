@@ -11,6 +11,7 @@ import app.io.nodes.input.InputNode;
 import app.io.nodes.output.NextPrevOutputNode;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
+import library.entities.audio.audioFiles.AudioFile;
 import library.entities.audio.audioFiles.Song;
 
 /**
@@ -87,26 +88,35 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
     } else if (audioPlayer.getRepeatPlaylistStates() == PlayerPlaylistRepeatStates.REPEAT_ALL) {
       while (timeToAddCopy > 0) {
         long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
+
+        long timeToCheck = getRemainingTime(audioPlayer);
         setElapsedTime((getElapsedTime() + timeToFinish) % album.getDuration());
 
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
-        history.add(currentSong);
+        if (timeToFinish >= timeToCheck &&
+          (currentSong.getDuration() == getRemainingTime(audioPlayer))) {
+          history.add(currentSong);
+        }
+
         timeToAddCopy -= timeToFinish;
       }
-//      setElapsedTime((getElapsedTime() + timeToAdd) % album.getDuration());
     } else {
       while (timeToAddCopy > 0) {
         long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
         if (timeToFinish == 0)
           timeToFinish = timeToAddCopy;
 
+        long timeToCheck = getRemainingTime(audioPlayer);
         setElapsedTime(getElapsedTime() + timeToFinish);
 
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
-        history.add(currentSong);
+
+        if (currentSong != null && timeToFinish >= timeToCheck &&
+                (currentSong.getDuration() == getRemainingTime(audioPlayer))) {
+          history.add(currentSong);
+        }
         timeToAddCopy -= timeToFinish;
       }
-//      setElapsedTime(getElapsedTime() + timeToAdd);
     }
 
     return history;

@@ -29,6 +29,7 @@ import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audio.collections.SongAudioCollection;
+import library.entities.audio.audioFiles.AudioFile;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
 import lombok.Getter;
@@ -104,7 +105,7 @@ public final class AudioPlayer {
     }
 
     AudioEntity playingEntity = getTimeManager().getPlayingAudioEntity(this);
-    if (playingEntity != null && playingEntity.getType() == SONG) {
+    if (((AudioFile) playingEntity).getDuration() == getTimeManager().getRemainingTime(this)) {
       user.getHistory().add(playingEntity);
     }
 

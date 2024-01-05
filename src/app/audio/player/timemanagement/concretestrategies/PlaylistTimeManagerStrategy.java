@@ -42,6 +42,7 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
    */
   @Override
   public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
+    long timeToAddCopy = timeToAdd;
     Playlist playlist = getPlaylistFromPlayer(audioPlayer);
     History history = new History();
 
@@ -50,13 +51,46 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
       int beginningOfSongTime = playlist.getBeginningOfSongDuration(currentSong);
       int currentTimeInSong = (int) (getElapsedTime() - beginningOfSongTime);
       assert currentSong != null;
+
+      int numberOfLoops = (int) ((currentTimeInSong + timeToAdd) / currentSong.getDuration());
+      while (numberOfLoops != 0) {
+        history.add(currentSong);
+        numberOfLoops--;
+      }
+
       // Make sure the playback doesn't go over the current song and loops inside it
       int repeatTimeInSong = (int) ((currentTimeInSong + timeToAdd) % currentSong.getDuration());
       setElapsedTime((long) (beginningOfSongTime + repeatTimeInSong));
     } else if (audioPlayer.getRepeatPlaylistStates() == PlayerPlaylistRepeatStates.REPEAT_ALL) {
-      setElapsedTime((getElapsedTime() + timeToAdd) % playlist.getDuration());
+      while (timeToAddCopy > 0) {
+        long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
+
+        long timeToCheck = getRemainingTime(audioPlayer);
+        setElapsedTime((getElapsedTime() + timeToFinish) % playlist.getDuration());
+
+        if (timeToFinish >= timeToCheck) {
+          Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+          history.add(currentSong);
+        }
+
+        timeToAddCopy -= timeToFinish;
+      }
     } else {
-      setElapsedTime(getElapsedTime() + timeToAdd);
+      while (timeToAddCopy > 0) {
+        long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
+        if (timeToFinish == 0)
+          timeToFinish = timeToAddCopy;
+
+        long timeToCheck = getRemainingTime(audioPlayer);
+        setElapsedTime(getElapsedTime() + timeToFinish);
+
+        Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+        if (currentSong != null && timeToFinish >= timeToCheck &&
+                (currentSong.getDuration() == getRemainingTime(audioPlayer))) {
+          history.add(currentSong);
+        }
+        timeToAddCopy -= timeToFinish;
+      }
     }
 
     return history;
