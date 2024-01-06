@@ -66,6 +66,8 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
   @Override
   public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
     long timeToAddCopy = timeToAdd;
+    long currentTimestamp = 0;
+
     Album album = getAlbumFromPlayer(audioPlayer);
     History history = new History();
 
@@ -78,7 +80,7 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
       // Update history
       int numberOfLoops = (int) ((currentTimeInSong + timeToAdd) / currentSong.getDuration());
       while (numberOfLoops != 0) {
-        history.add(currentSong);
+        history.add(currentSong, currentTimestamp);
         numberOfLoops--;
       }
 
@@ -95,7 +97,7 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
         if (timeToFinish >= timeToCheck &&
           (currentSong.getDuration() == getRemainingTime(audioPlayer))) {
-          history.add(currentSong);
+          history.add(currentSong, currentTimestamp);
         }
 
         timeToAddCopy -= timeToFinish;
@@ -112,8 +114,9 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
         timeToAddCopy -= timeToFinish;
 
+        currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
         if (currentSong != null && timeToFinish == remainingSongTime) {
-          history.add(currentSong);
+          history.add(currentSong, currentTimestamp);
         }
       }
     }

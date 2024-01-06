@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class Node {
   private String command;
-  private long timestamp;
+  private Long timestamp;
 
   public Node() {
   }

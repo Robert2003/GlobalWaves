@@ -2,6 +2,8 @@ package main;
 
 import app.commands.CommandManager;
 import app.commands.CommandReader;
+import app.commands.executables.EndProgram;
+import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import checker.Checker;
@@ -19,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import library.Library;
+import library.users.User;
 
 public final class Main {
   static final String LIBRARY_PATH = CheckerConstants.TESTS_PATH + "library/library.json";
@@ -89,6 +92,16 @@ public final class Main {
         outputs.add(commandNode);
       }
     }
+
+    out = new EndProgram().execute(null);
+    JsonNode commandNode = objectMapper.valueToTree(out);
+    outputs.add(commandNode);
+
+//    User user = Library.getInstance().getUserByName("david27");
+//
+//    for (OrderedHistory history : user.getHistory().getOrderHistoryMap()) {
+//      System.out.println(history.getEntity().getName() + " - " + history.getAddTimestamp());
+//    }
 
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
     objectWriter.writeValue(new File(filePathOutput), outputs);

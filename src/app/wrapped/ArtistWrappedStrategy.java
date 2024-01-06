@@ -11,6 +11,7 @@ import app.io.nodes.input.InputNode;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +31,7 @@ public class ArtistWrappedStrategy implements Executable {
     out.getResult().setTopSongs(getTop5Songs(artist));
     out.getResult().setTopAlbums(getTop5Albums(artist));
     out.getResult().setTopFans(getTop5Fans(artist));
-    out.getResult().setListeners(out.getResult().getTopFans().size());
+    out.getResult().setListeners(getListeners(artist));
 
     if (out.getResult().getTopSongs().size() == 0
         && out.getResult().getTopAlbums().size() == 0
@@ -43,7 +44,7 @@ public class ArtistWrappedStrategy implements Executable {
     return out;
   }
 
-  public Map<String, Integer> getTop5Songs(User artist) {
+  public static Map<String, Integer> getTop5Songs(User artist) {
     Map<String, Integer> songs = new LinkedHashMap<>();
 
     for (User user : Library.getInstance().getNormalUsers()) {
@@ -110,6 +111,46 @@ public class ArtistWrappedStrategy implements Executable {
   }
 
   public List<String> getTop5Fans(User artist) {
+    Map<String, Integer> fans = new LinkedHashMap<>();
+//    Set<String> fans = new HashSet<>();
+
+    for (User user : Library.getInstance().getNormalUsers()) {
+      for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
+        if (entry.getKey().getType() == SONG) {
+          Song song = (Song) entry.getKey();
+          String artistName = song.getArtist();
+
+          if (!artist.getUsername().equals(artistName)) {
+            continue;
+          }
+
+          if (fans.containsKey(user.getUsername())) {
+            int newCount = fans.get(user.getUsername()) + entry.getValue();
+            fans.put(user.getUsername(), newCount);
+          } else {
+            fans.put(user.getUsername(), entry.getValue());
+          }
+        }
+      }
+    }
+
+    return fans.entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue()
+                    .reversed()
+                    .thenComparing(Map.Entry::getKey))
+            .limit(Constants.PRINT_LIMIT)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new))
+            .stream()
+            .collect(Collectors.toList());
+
+//    return fans.stream()
+//            .sorted(String::compareTo)
+//            .limit(Constants.PRINT_LIMIT)
+//            .collect(Collectors.toList());
+  }
+
+  public int getListeners (User artist) {
     Set<String> fans = new HashSet<>();
 
     for (User user : Library.getInstance().getNormalUsers()) {
@@ -127,9 +168,6 @@ public class ArtistWrappedStrategy implements Executable {
       }
     }
 
-    return fans.stream()
-            .sorted(String::compareTo)
-            .limit(Constants.PRINT_LIMIT)
-            .collect(Collectors.toList());
+    return fans.size();
   }
 }

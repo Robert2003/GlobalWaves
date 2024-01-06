@@ -25,6 +25,8 @@ public final class PodcastTimeManagerStrategy extends TimeManagerStrategy {
 
   @Override
   public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
+    long currentTimestamp = timeToAdd + getLastTimeUpdated();
+
     History history = new History();
     Podcast podcast = getPodcastFromPlayer(audioPlayer);
 //    setElapsedTime(getElapsedTime() + timeToAdd);
@@ -35,7 +37,8 @@ public final class PodcastTimeManagerStrategy extends TimeManagerStrategy {
       setElapsedTime((getElapsedTime() + timeToFinish) % podcast.getDuration());
 
       Episode currentEpisode = (Episode) getPlayingAudioEntity(audioPlayer);
-      history.add(currentEpisode);
+      currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
+      history.add(currentEpisode, currentTimestamp);
       timeToAddCopy -= timeToFinish;
     }
     return history;

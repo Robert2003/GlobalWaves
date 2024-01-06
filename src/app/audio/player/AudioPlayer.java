@@ -106,7 +106,7 @@ public final class AudioPlayer {
 
     AudioEntity playingEntity = getTimeManager().getPlayingAudioEntity(this);
     if (((AudioFile) playingEntity).getDuration() == getTimeManager().getRemainingTime(this)) {
-      user.getHistory().add(playingEntity);
+      user.getHistory().add(playingEntity, command.getTimestamp());
     }
 
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
@@ -276,7 +276,7 @@ public final class AudioPlayer {
     NextPrevOutputNode out = timeManager.next(this, command);
 
     AudioEntity entity = timeManager.getPlayingAudioEntity(user.getAudioPlayer());
-    user.getHistory().add(entity);
+    user.getHistory().add(entity, command.getTimestamp());
 
     return out;
   }
@@ -295,7 +295,7 @@ public final class AudioPlayer {
       NextPrevOutputNode out = timeManager.prev(this, command);
 
       AudioEntity entity = timeManager.getPlayingAudioEntity(user.getAudioPlayer());
-      user.getHistory().add(entity);
+      user.getHistory().add(entity, command.getTimestamp());
 
       return out;
     }
@@ -447,7 +447,7 @@ public final class AudioPlayer {
         && this.getPlayPauseState() == PlayerPlayPauseStates.PLAYING) {
       History history = getTimeManager()
           .addTime(this, command.getTimestamp() - getTimeManager().getLastTimeUpdated());
-      user.getHistory().add(history);
+      user.getHistory().add(history, command.getTimestamp());
     }
     getTimeManager().setLastTimeUpdated(command.getTimestamp());
 

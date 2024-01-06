@@ -5,6 +5,7 @@ import app.helpers.ConnectionStatus;
 import app.helpers.UserType;
 import app.history.History;
 import app.io.nodes.input.InputNode;
+import app.monetization.Monetization;
 import app.pagination.Page;
 import app.pagination.concretepages.ArtistPage;
 import app.pagination.concretepages.HostPage;
@@ -50,6 +51,8 @@ public final class User {
   @JsonIgnore private long addOnPlatformTimestamp;
 
   @JsonIgnore private History history;
+  @JsonIgnore private Monetization monetization;
+  @JsonIgnore private List<Merch> boughtMerch;
 
   public User() {
     this.setSearchBar(new SearchBar());
@@ -60,6 +63,8 @@ public final class User {
     this.setConnectionStatus(ConnectionStatus.ONLINE);
     this.setUserType(UserType.NORMAL);
     this.setHistory(new History());
+    this.setMonetization(new Monetization());
+    this.setBoughtMerch(new ArrayList<>());
     changePage(PageType.HOME_PAGE);
   }
 
@@ -73,6 +78,8 @@ public final class User {
     this.setOwnedPlaylists(new ArrayList<>());
     this.setFollowedPlaylists(new ArrayList<>());
     this.setHistory(new History());
+    this.setMonetization(new Monetization());
+    this.setBoughtMerch(new ArrayList<>());
     this.setConnectionStatus(ConnectionStatus.ONLINE);
     this.setAddOnPlatformTimestamp(command.getTimestamp());
     switch (command.getType()) {
@@ -148,6 +155,15 @@ public final class User {
     for (Event event : this.getEvents()) {
       if (event.getName().equals(name)) {
         return event;
+      }
+    }
+    return null;
+  }
+
+  public Merch getMerchByName(final String name) {
+    for (Merch merch : this.getMerch()) {
+      if (merch.getName().equals(name)) {
+        return merch;
       }
     }
     return null;

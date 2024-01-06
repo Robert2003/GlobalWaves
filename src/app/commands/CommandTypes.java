@@ -45,6 +45,8 @@ public enum CommandTypes {
   GET_TOP_5_ALBUMS("getTop5Albums"),
   GET_TOP_5_ARTISTS("getTop5Artists"),
   WRAPPED("wrapped"),
+  BUY_MERCH("buyMerch"),
+  SEE_MERCH("seeMerch"),
   DEFAULT("default");
 
   private final String description;

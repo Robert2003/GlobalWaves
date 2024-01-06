@@ -8,6 +8,7 @@ import app.commands.executables.AddPodcast;
 import app.commands.executables.AddRemoveInPlaylist;
 import app.commands.executables.AddUser;
 import app.commands.executables.Backward;
+import app.commands.executables.BuyMerch;
 import app.commands.executables.ChangePage;
 import app.commands.executables.CreatePlaylist;
 import app.commands.executables.DeleteUser;
@@ -31,6 +32,7 @@ import app.commands.executables.RemoveEvent;
 import app.commands.executables.RemovePodcast;
 import app.commands.executables.Repeat;
 import app.commands.executables.Search;
+import app.commands.executables.SeeMerch;
 import app.commands.executables.Select;
 import app.commands.executables.ShowAlbums;
 import app.commands.executables.ShowPlaylists;
@@ -137,6 +139,8 @@ public final class CommandManager {
       case GET_TOP_5_ALBUMS -> new GetTop5Albums().execute(command);
       case GET_TOP_5_ARTISTS -> new GetTop5Artists().execute(command);
       case WRAPPED -> new Wrapped().execute(command);
+      case BUY_MERCH -> new BuyMerch().execute(command);
+      case SEE_MERCH -> new SeeMerch().execute(command);
       case DEFAULT -> null;
     };
   }
