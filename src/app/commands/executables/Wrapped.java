@@ -4,8 +4,13 @@ import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import app.wrapped.ArtistWrappedStrategy;
+import app.wrapped.HostWrappedStrategy;
+import app.wrapped.UserWrappedStrategy;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.users.User;
@@ -16,25 +21,22 @@ public class Wrapped implements Executable {
 
   @Override
   public Node execute(InputNode command) {
-    WrappedOutputNode out = new WrappedOutputNode(command);
-
-    User user = Library.getInstance().getUserByName(command.getUsername());
-    out.getResult().setTopSongs(user.getHistory().getTop5Songs());
-    out.getResult().setTopEpisodes(user.getHistory().getTop5Episodes());
-    out.getResult().setTopAlbums(user.getHistory().getTop5Albums());
-    out.getResult().setTopGenres(user.getHistory().getTop5Genres());
-
-    return out;
+    return switch (Library.getInstance().getUserByName(command.getUsername()).getUserType()) {
+      case NORMAL -> new UserWrappedStrategy().execute(command);
+      case ARTIST -> new ArtistWrappedStrategy().execute(command);
+      case HOST -> new HostWrappedStrategy().execute(command);
+    };
   }
 
   @Getter
   @Setter
   @JsonPropertyOrder({"command", "user", "timestamp", "result"})
-  private static class WrappedOutputNode extends Node {
+  public static class WrappedOutputNode extends Node {
     private String user;
     private Result result;
+    private String message;
 
-    WrappedOutputNode(InputNode command) {
+    public WrappedOutputNode(InputNode command) {
       super(command);
       this.setUser(command.getUsername());
       this.setResult(new Result());
@@ -42,12 +44,15 @@ public class Wrapped implements Executable {
 
     @Getter
     @Setter
-    private static class Result {
+    @JsonPropertyOrder({"topAlbums", "topSongs"})
+    public static class Result {
       private Map<String, Integer> topArtists;
       private Map<String, Integer> topGenres;
       private Map<String, Integer> topSongs;
       private Map<String, Integer> topAlbums;
       private Map<String, Integer> topEpisodes;
+      private List<String> topFans;
+      private Integer listeners;
 
       public Result(
           Map<String, Integer> topArtists,
@@ -63,11 +68,6 @@ public class Wrapped implements Executable {
       }
 
       public Result() {
-        this.setTopAlbums(new HashMap<>());
-        this.setTopArtists(new HashMap<>());
-        this.setTopEpisodes(new HashMap<>());
-        this.setTopGenres(new HashMap<>());
-        this.setTopSongs(new HashMap<>());
       }
     }
   }

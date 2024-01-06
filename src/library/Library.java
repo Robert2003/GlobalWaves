@@ -81,6 +81,24 @@ public final class Library {
   }
 
   /**
+   * Returns the user with the specified name.
+   *
+   * @param name The name of the user to search for.
+   * @return The user with the specified name, or null if not found.
+   */
+  public int getUserIndexByName(final String name) {
+    int index = 0;
+
+    for (User user : getUsers()) {
+      if (user.getUsername().equals(name)) {
+        return index;
+      }
+      index++;
+    }
+    return -1;
+  }
+
+  /**
    * Retrieves an Album object from the library by its name. This method iterates over all the
    * albums in the library and returns the first one that matches the provided name. If no album
    * with the provided name is found, the method returns null.
@@ -112,6 +130,17 @@ public final class Library {
       }
     }
     return null;
+  }
+
+  public List<Podcast> getPodcastsByOwner(final String username) {
+    List<Podcast> podcasts = new ArrayList<>();
+
+    for (Podcast podcast : getPodcasts()) {
+      if (podcast.getOwner().equals(username)) {
+        podcasts.add(podcast);
+      }
+    }
+    return podcasts;
   }
 
   /** Sets the object type for each song, podcast, and playlist in the library. */

@@ -102,20 +102,19 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
       }
     } else {
       while (timeToAddCopy > 0) {
-        long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
+        long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
         if (timeToFinish == 0)
           timeToFinish = timeToAddCopy;
 
-        long timeToCheck = getRemainingTime(audioPlayer);
+        long remainingSongTime = getRemainingTime(audioPlayer);
         setElapsedTime(getElapsedTime() + timeToFinish);
 
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+        timeToAddCopy -= timeToFinish;
 
-        if (currentSong != null && timeToFinish >= timeToCheck &&
-                (currentSong.getDuration() == getRemainingTime(audioPlayer))) {
+        if (currentSong != null && timeToFinish == remainingSongTime) {
           history.add(currentSong);
         }
-        timeToAddCopy -= timeToFinish;
       }
     }
 

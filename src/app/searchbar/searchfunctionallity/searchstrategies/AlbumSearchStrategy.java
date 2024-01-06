@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
+import library.users.User;
 
 /**
  * This class represents a search strategy for songs. It implements the Searchable interface and
@@ -26,6 +27,13 @@ public final class AlbumSearchStrategy implements Searchable {
     List<AudioEntity> outputList =
         albums.stream()
             .filter(album -> isMatch(album, filter))
+            .sorted(
+                (o1, o2) -> {
+                  int artist1Index = Library.getInstance().getUserIndexByName(o1.getOwner());
+                  int artist2Index = Library.getInstance().getUserIndexByName(o2.getOwner());
+
+                  return artist1Index - artist2Index;
+                })
             .limit(Constants.PRINT_LIMIT)
             .collect(Collectors.toList());
 

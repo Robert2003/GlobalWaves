@@ -43,11 +43,11 @@ public final class Song extends AudioFile {
     }
     Song song = (Song) o;
     return
-//        Objects.equals(album, song.album)
+        Objects.equals(album, song.album) &&
         Objects.equals(getName(), song.getName())
 //        && Objects.equals(lyrics, song.lyrics)
-//        && Objects.equals(genre, song.genre)
-//        && Objects.equals(releaseYear, song.releaseYear)
+        && Objects.equals(genre, song.genre)
+        && Objects.equals(releaseYear, song.releaseYear)
         && Objects.equals(artist, song.artist);
   }
 

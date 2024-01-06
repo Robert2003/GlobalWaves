@@ -14,9 +14,12 @@ import app.searchbar.SearchBar;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
+
+import library.Library;
 import library.entities.Announcement;
 import library.entities.Event;
 import library.entities.Merch;
+import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audioFiles.Song;
 import lombok.Getter;
@@ -44,6 +47,8 @@ public final class User {
   @JsonIgnore private List<Merch> merch;
   @JsonIgnore private List<Announcement> announcements;
 
+  @JsonIgnore private long addOnPlatformTimestamp;
+
   @JsonIgnore private History history;
 
   public User() {
@@ -69,6 +74,7 @@ public final class User {
     this.setFollowedPlaylists(new ArrayList<>());
     this.setHistory(new History());
     this.setConnectionStatus(ConnectionStatus.ONLINE);
+    this.setAddOnPlatformTimestamp(command.getTimestamp());
     switch (command.getType()) {
       case "user":
         this.setUserType(UserType.NORMAL);
@@ -145,5 +151,28 @@ public final class User {
       }
     }
     return null;
+  }
+
+  public List<Album> getAlbums() {
+    List<Album> albums = new ArrayList<>();
+
+    for (Album album : Library.getInstance().getAlbums()) {
+      if (album.getOwner().equals(this.getUsername())) {
+        albums.add(album);
+      }
+    }
+    return albums;
+  }
+
+  public boolean hasAlbum(String albumName) {
+    List<Album> albums = getAlbums();
+
+    for (Album album : albums) {
+      if (album.getName().equals(albumName)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
