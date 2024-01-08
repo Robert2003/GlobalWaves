@@ -54,7 +54,7 @@ public final class Song extends AudioFile {
   @Override
   public int hashCode() {
     return Objects.hash(
-        super.hashCode(), album, tags, lyrics, genre, releaseYear, artist, numberOfLikes);
+        super.hashCode());
   }
 
   @Override

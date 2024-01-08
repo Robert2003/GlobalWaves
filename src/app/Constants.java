@@ -1,7 +1,9 @@
 package app;
 
 public final class Constants {
-  private Constants() {
+	public static final int RECOMMENDATION_TIME = 30;
+
+	private Constants() {
   }
 
   public static final int PRINT_LIMIT = 5;

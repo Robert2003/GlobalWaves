@@ -54,4 +54,19 @@ public class History {
       }
     }
   }
+
+  public int getCount(AudioEntity entity) {
+    if (entity == null) {
+      return 0;
+    }
+
+    int cnt = 0;
+    for (OrderedHistory order : getOrderHistoryMap()) {
+      if (order.getEntity().getName().equals(entity.getName())) {
+        cnt++;
+      }
+    }
+
+    return cnt;
+  }
 }

@@ -3,6 +3,7 @@ package app.wrapped;
 import app.Constants;
 import app.commands.Executable;
 import app.commands.executables.Wrapped;
+import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import library.Library;
@@ -44,19 +45,35 @@ public class UserWrappedStrategy implements Executable {
 	}
 
 	public Map<String, Integer> getTop5Songs(final User user) {
-		return user.getHistory().getHistoryMap().entrySet().stream()
-				.filter(entry -> entry.getKey().getType() == SONG)
-				.sorted(
-						Map.Entry.<AudioEntity, Integer>comparingByValue().reversed()
-								.thenComparing(entry -> entry.getKey().getName()).reversed()
-								.reversed())
+        Map<String, Integer> top5Songs = new LinkedHashMap<>();
+		for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
+			if (order.getEntity().getType() == SONG) {
+				Song song = (Song) order.getEntity();
+				top5Songs.put(song.getName(), user.getHistory().getCount(song));
+			}
+		}
+
+		return top5Songs.entrySet().stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
 				.limit(Constants.PRINT_LIMIT)
 				.collect(
 						Collectors.toMap(
-								entry -> entry.getKey().getName(),
-								Map.Entry::getValue,
-								(e1, e2) -> e1,
-								LinkedHashMap::new));
+								Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+
+//		return user.getHistory().getHistoryMap().entrySet().stream()
+//				.filter(entry -> entry.getKey().getType() == SONG)
+//				.sorted(
+//						Map.Entry.<AudioEntity, Integer>comparingByValue().reversed()
+//								.thenComparing(entry -> entry.getKey().getName()).reversed()
+//								.reversed())
+//				.limit(Constants.PRINT_LIMIT)
+//				.collect(
+//						Collectors.toMap(
+//								entry -> entry.getKey().getName(),
+//								Map.Entry::getValue,
+//								(e1, e2) -> e1,
+//								LinkedHashMap::new));
 	}
 
 	public Map<String, Integer> getTop5Episodes(final User user) {
@@ -137,7 +154,7 @@ public class UserWrappedStrategy implements Executable {
 		}
 
 		return artists.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
 				.limit(Constants.PRINT_LIMIT)
 				.collect(
 						Collectors.toMap(

@@ -1,6 +1,7 @@
 package app.pagination.visitors.concrete;
 
 import app.Constants;
+import app.audio.player.AudioPlayer;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import app.pagination.concretepages.ArtistPage;
@@ -8,13 +9,16 @@ import app.pagination.concretepages.HomePage;
 import app.pagination.concretepages.HostPage;
 import app.pagination.concretepages.LikedContentPage;
 import app.pagination.visitors.PageVisitor;
+import app.searchbar.SearchType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import library.Library;
 import library.entities.Announcement;
 import library.entities.Event;
 import library.entities.Merch;
+import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audio.collections.Podcast;
@@ -44,6 +48,9 @@ public final class PopulatePageVisitor implements PageVisitor {
             .toList();
 
     homePage.setTop5Playlists(top5Playlists);
+
+    homePage.setSongRecommendations(user.getRecommendations().getSongRecommendations());
+    homePage.setPlaylistRecommendations(user.getRecommendations().getPlaylistRecommendations());
 
     return null;
   }

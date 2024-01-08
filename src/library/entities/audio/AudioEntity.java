@@ -55,6 +55,6 @@ public class AudioEntity {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(name, type, startTimestamp);
+    return Objects.hash(name, type);
   }
 }

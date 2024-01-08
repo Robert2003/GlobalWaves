@@ -11,6 +11,7 @@ import app.pagination.concretepages.ArtistPage;
 import app.pagination.concretepages.HostPage;
 import app.pagination.enums.PageType;
 import app.pagination.factory.PageFactory;
+import app.recommendations.Recommendations;
 import app.searchbar.SearchBar;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public final class User {
   @JsonIgnore private Monetization monetization;
   @JsonIgnore private List<Merch> boughtMerch;
 
+  @JsonIgnore private Recommendations recommendations;
+
   public User() {
     this.setSearchBar(new SearchBar());
     this.setAudioPlayer(new AudioPlayer());
@@ -65,6 +68,7 @@ public final class User {
     this.setHistory(new History());
     this.setMonetization(new Monetization());
     this.setBoughtMerch(new ArrayList<>());
+    this.setRecommendations(new Recommendations());
     changePage(PageType.HOME_PAGE);
   }
 
@@ -80,6 +84,7 @@ public final class User {
     this.setHistory(new History());
     this.setMonetization(new Monetization());
     this.setBoughtMerch(new ArrayList<>());
+    this.setRecommendations(new Recommendations());
     this.setConnectionStatus(ConnectionStatus.ONLINE);
     this.setAddOnPlatformTimestamp(command.getTimestamp());
     switch (command.getType()) {

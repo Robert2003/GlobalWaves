@@ -42,6 +42,7 @@ import app.commands.executables.Shuffle;
 import app.commands.executables.Status;
 import app.commands.executables.SwitchConnectionStatus;
 import app.commands.executables.SwitchVisibility;
+import app.commands.executables.UpdateRecommendations;
 import app.commands.executables.Wrapped;
 import app.helpers.UserType;
 import app.io.nodes.Node;
@@ -141,6 +142,7 @@ public final class CommandManager {
       case WRAPPED -> new Wrapped().execute(command);
       case BUY_MERCH -> new BuyMerch().execute(command);
       case SEE_MERCH -> new SeeMerch().execute(command);
+      case UPDATE_RECOMMENDATIONS -> new UpdateRecommendations().execute(command);
       case DEFAULT -> null;
     };
   }

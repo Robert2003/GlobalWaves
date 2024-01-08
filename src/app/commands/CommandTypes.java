@@ -47,6 +47,7 @@ public enum CommandTypes {
   WRAPPED("wrapped"),
   BUY_MERCH("buyMerch"),
   SEE_MERCH("seeMerch"),
+  UPDATE_RECOMMENDATIONS("updateRecommendations"),
   DEFAULT("default");
 
   private final String description;

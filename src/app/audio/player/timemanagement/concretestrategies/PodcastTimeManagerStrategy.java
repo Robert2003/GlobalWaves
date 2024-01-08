@@ -13,6 +13,8 @@ import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Episode;
 import library.entities.audio.audioFiles.Song;
 
+import static app.searchbar.SearchType.NOT_INITIALIZED;
+
 /**
  * The PodcastTimeManagerStrategy class is a concrete implementation of the TimeManagerStrategy
  * abstract class. It provides time management functionality for a podcast in an audio player.
@@ -33,13 +35,26 @@ public final class PodcastTimeManagerStrategy extends TimeManagerStrategy {
     long timeToAddCopy = timeToAdd;
 
     while (timeToAddCopy > 0) {
-      long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
-      setElapsedTime((getElapsedTime() + timeToFinish) % podcast.getDuration());
+      long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
 
+      if (timeToFinish <= 0)
+        timeToFinish = timeToAddCopy;
+
+      long remainingSongTime = getRemainingTime(audioPlayer);
+
+      setElapsedTime(getElapsedTime() + timeToFinish);
+
+      if (audioPlayer.getRepeatSongPodcastStates() != PlayerSongPodcastRepeatStates.NO_REPEAT) {
+        setElapsedTime(getElapsedTime() % podcast.getDuration());
+      }
+
+      timeToAddCopy -= timeToFinish;
       Episode currentEpisode = (Episode) getPlayingAudioEntity(audioPlayer);
       currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
-      history.add(currentEpisode, currentTimestamp);
-      timeToAddCopy -= timeToFinish;
+
+      if (currentEpisode != null && timeToFinish == remainingSongTime) {
+        history.add(currentEpisode, currentTimestamp);
+      }
     }
     return history;
   }

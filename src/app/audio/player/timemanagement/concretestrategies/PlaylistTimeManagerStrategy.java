@@ -80,17 +80,17 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
     } else {
       while (timeToAddCopy > 0) {
         long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
-        if (timeToFinish == 0)
+        if (timeToFinish <= 0)
           timeToFinish = timeToAddCopy;
 
-        long remainingSongTime = getRemainingTime(audioPlayer);
         setElapsedTime(getElapsedTime() + timeToFinish);
+        long remainingSongTime = getRemainingTime(audioPlayer);
 
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
         timeToAddCopy -= timeToFinish;
 
         currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
-        if (currentSong != null && timeToFinish == remainingSongTime) {
+        if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
           history.add(currentSong, currentTimestamp);
         }
       }

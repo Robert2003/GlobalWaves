@@ -105,9 +105,7 @@ public final class AudioPlayer {
     }
 
     AudioEntity playingEntity = getTimeManager().getPlayingAudioEntity(this);
-    if (((AudioFile) playingEntity).getDuration() == getTimeManager().getRemainingTime(this)) {
-      user.getHistory().add(playingEntity, command.getTimestamp());
-    }
+    user.getHistory().add(playingEntity, command.getTimestamp());
 
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
   }

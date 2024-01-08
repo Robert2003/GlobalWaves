@@ -97,12 +97,6 @@ public final class Main {
     JsonNode commandNode = objectMapper.valueToTree(out);
     outputs.add(commandNode);
 
-//    User user = Library.getInstance().getUserByName("david27");
-//
-//    for (OrderedHistory history : user.getHistory().getOrderHistoryMap()) {
-//      System.out.println(history.getEntity().getName() + " - " + history.getAddTimestamp());
-//    }
-
     ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
     objectWriter.writeValue(new File(filePathOutput), outputs);
   }

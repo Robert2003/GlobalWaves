@@ -51,6 +51,27 @@ public final class PrintPageVisitor implements PageVisitor {
       }
     }
 
+    messageBuilder.append("]\n\n").append("Song recommendations:").append("\n\t[");
+    songIterator = homePage.getSongRecommendations().iterator();
+    while (songIterator.hasNext()) {
+      Song song = songIterator.next();
+      messageBuilder.append(song.getName());
+      if (songIterator.hasNext()) {
+        messageBuilder.append(", ");
+      }
+    }
+
+    messageBuilder.append("]\n\n").append("Playlists recommendations:").append("\n\t[");
+
+    playlistIterator = homePage.getPlaylistRecommendations().iterator();
+    while (playlistIterator.hasNext()) {
+      Playlist playlist = playlistIterator.next();
+      messageBuilder.append(playlist.getName());
+      if (playlistIterator.hasNext()) {
+        messageBuilder.append(", ");
+      }
+    }
+
     messageBuilder.append("]");
     return new PrintCurrentPageOutputNode(command, messageBuilder.toString());
   }
