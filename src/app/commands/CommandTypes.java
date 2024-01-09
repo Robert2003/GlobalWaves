@@ -48,6 +48,9 @@ public enum CommandTypes {
   BUY_MERCH("buyMerch"),
   SEE_MERCH("seeMerch"),
   UPDATE_RECOMMENDATIONS("updateRecommendations"),
+  NEXT_PAGE("nextPage"),
+  PREVIOUS_PAGE("previousPage"),
+  LOAD_RECOMMENDATIONS("loadRecommendations"),
   DEFAULT("default");
 
   private final String description;

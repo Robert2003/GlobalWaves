@@ -105,7 +105,7 @@ public final class SearchBar {
           Library.getInstance()
               .getUserByName(
                   lastSearch.getResultedUsers().get(command.getItemNumber() - 1).getUsername());
-      user.changePage(artist.getCurrentPage());
+      user.changePage(artist.getCurrentPage(), true);
 
       return new SelectOutputNode(
           command, "Successfully selected " + artist.getUsername() + "'s page.");

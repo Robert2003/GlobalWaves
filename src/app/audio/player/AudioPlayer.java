@@ -225,8 +225,9 @@ public final class AudioPlayer {
    * @return A {@link app.io.nodes.output.PlayerOutputNode} with the current status.
    */
   public PlayerOutputNode status(final InputNode command) {
-    if (this.getLoadedTrack() == null) {
-      return null;
+    if (!this.hasLoadedTrack()) {
+      StatusOutputNode stats = new StatusOutputNode();
+      return new PlayerOutputNode(command, stats);
     }
 
     StatusOutputNode stats = new StatusOutputNode(this);

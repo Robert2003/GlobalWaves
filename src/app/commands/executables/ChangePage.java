@@ -35,7 +35,7 @@ public final class ChangePage implements Executable {
           command, user.getUsername() + CHANGE_PAGE_ERROR_MESSAGE);
     }
 
-    user.changePage(pageType);
+    user.changePage(pageType, true);
     return new ChangePageOutputNode(
         command, user.getUsername() + " accessed " + command.getNextPage() + " successfully.");
   }

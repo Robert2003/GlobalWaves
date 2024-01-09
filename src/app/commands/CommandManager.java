@@ -22,9 +22,12 @@ import app.commands.executables.GetTop5Playlists;
 import app.commands.executables.GetTop5Songs;
 import app.commands.executables.Like;
 import app.commands.executables.Load;
+import app.commands.executables.LoadRecommendations;
 import app.commands.executables.Next;
+import app.commands.executables.NextPage;
 import app.commands.executables.PlayPause;
 import app.commands.executables.Prev;
+import app.commands.executables.PreviousPage;
 import app.commands.executables.PrintCurrentPage;
 import app.commands.executables.RemoveAlbum;
 import app.commands.executables.RemoveAnnouncement;
@@ -58,8 +61,7 @@ public final class CommandManager {
 
   private static CommandManager manager;
 
-  private CommandManager() {
-  }
+  private CommandManager() {}
 
   /**
    * Returns the singleton instance of the CommandManager.
@@ -143,6 +145,9 @@ public final class CommandManager {
       case BUY_MERCH -> new BuyMerch().execute(command);
       case SEE_MERCH -> new SeeMerch().execute(command);
       case UPDATE_RECOMMENDATIONS -> new UpdateRecommendations().execute(command);
+      case NEXT_PAGE -> new NextPage().execute(command);
+      case PREVIOUS_PAGE -> new PreviousPage().execute(command);
+      case LOAD_RECOMMENDATIONS -> new LoadRecommendations().execute(command);
       case DEFAULT -> null;
     };
   }

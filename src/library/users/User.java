@@ -7,6 +7,7 @@ import app.history.History;
 import app.io.nodes.input.InputNode;
 import app.monetization.Monetization;
 import app.pagination.Page;
+import app.pagination.PageHistory;
 import app.pagination.concretepages.ArtistPage;
 import app.pagination.concretepages.HostPage;
 import app.pagination.enums.PageType;
@@ -56,6 +57,7 @@ public final class User {
   @JsonIgnore private List<Merch> boughtMerch;
 
   @JsonIgnore private Recommendations recommendations;
+  @JsonIgnore private PageHistory pageHistory;
 
   public User() {
     this.setSearchBar(new SearchBar());
@@ -69,7 +71,8 @@ public final class User {
     this.setMonetization(new Monetization());
     this.setBoughtMerch(new ArrayList<>());
     this.setRecommendations(new Recommendations());
-    changePage(PageType.HOME_PAGE);
+    this.setPageHistory(new PageHistory());
+    changePage(PageType.HOME_PAGE, true);
   }
 
   public User(final InputNode command) {
@@ -85,23 +88,24 @@ public final class User {
     this.setMonetization(new Monetization());
     this.setBoughtMerch(new ArrayList<>());
     this.setRecommendations(new Recommendations());
+    this.setPageHistory(new PageHistory());
     this.setConnectionStatus(ConnectionStatus.ONLINE);
     this.setAddOnPlatformTimestamp(command.getTimestamp());
     switch (command.getType()) {
       case "user":
         this.setUserType(UserType.NORMAL);
-        changePage(PageType.HOME_PAGE);
+        changePage(PageType.HOME_PAGE, true);
         break;
       case "artist":
         this.setUserType(UserType.ARTIST);
         this.setEvents(new ArrayList<>());
         this.setMerch(new ArrayList<>());
-        this.changePage(PageType.ARTIST_PAGE);
+        this.changePage(PageType.ARTIST_PAGE, true);
         ((ArtistPage) this.getCurrentPage()).setArtistName(getUsername());
         break;
       case "host":
         this.setUserType(UserType.HOST);
-        this.changePage(PageType.HOST_PAGE);
+        this.changePage(PageType.HOST_PAGE, true);
         this.setAnnouncements(new ArrayList<>());
         ((HostPage) this.getCurrentPage()).setHostName(getUsername());
         break;
@@ -116,8 +120,11 @@ public final class User {
    *
    * @param type The type of the page to be set as the current page.
    */
-  public void changePage(final PageType type) {
+  public void changePage(final PageType type, final boolean addToHistory) {
     Page newPage = PageFactory.createPage(type);
+    if (addToHistory) {
+      pageHistory.addPage(newPage);
+    }
     this.setCurrentPage(newPage);
   }
 
@@ -125,10 +132,13 @@ public final class User {
    * Changes the current page of the user to the specified page. The provided page is directly set
    * as the current page of the user.
    *
-   * @param newpage The page to be set as the current page.
+   * @param newPage The page to be set as the current page.
    */
-  public void changePage(final Page newpage) {
-    this.setCurrentPage(newpage);
+  public void changePage(final Page newPage, final boolean addToHistory) {
+    this.setCurrentPage(newPage);
+    if (addToHistory) {
+      pageHistory.addPage(newPage);
+    }
   }
 
   /**

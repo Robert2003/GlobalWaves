@@ -32,4 +32,5 @@ public final class InputNode extends Node {
   private Integer price;
   private List<Episode> episodes;
   private String nextPage;
+  private String recommendationType;
 }

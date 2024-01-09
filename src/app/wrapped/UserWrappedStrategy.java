@@ -116,21 +116,21 @@ public class UserWrappedStrategy implements Executable {
 	}
 
 	public Map<String, Integer> getTop5Genres(final User user) {
-		Map<String, Integer> albums = new HashMap<>();
+		Map<String, Integer> genres = new HashMap<>();
 
 		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
 			if (entry.getKey().getType() == SONG) {
 				String genre = ((Song) entry.getKey()).getGenre();
 
-				if (albums.containsKey(genre)) {
-					albums.put(genre, albums.get(genre) + entry.getValue());
+				if (genres.containsKey(genre)) {
+					genres.put(genre, genres.get(genre) + entry.getValue());
 				} else {
-					albums.put(genre, entry.getValue());
+					genres.put(genre, entry.getValue());
 				}
 			}
 		}
 
-		return albums.entrySet().stream()
+		return genres.entrySet().stream()
 				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
 				.limit(Constants.PRINT_LIMIT)
 				.collect(

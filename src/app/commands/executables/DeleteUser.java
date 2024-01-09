@@ -83,7 +83,7 @@ public final class DeleteUser implements Executable {
     for (User user : Library.getInstance().getUsers()) {
       // Delete page
       if (!user.equals(host) && user.getCurrentPage().equals(host.getCurrentPage())) {
-        user.changePage(PageType.HOME_PAGE);
+        user.changePage(PageType.HOME_PAGE, true);
       }
     }
   }

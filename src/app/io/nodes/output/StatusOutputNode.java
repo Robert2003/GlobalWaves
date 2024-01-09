@@ -2,6 +2,7 @@ package app.io.nodes.output;
 
 import app.audio.player.AudioPlayer;
 import app.audio.player.states.PlayerPlayPauseStates;
+import app.commands.executables.Repeat;
 import library.entities.audio.audioFiles.Episode;
 import library.entities.audio.audioFiles.Song;
 import lombok.Getter;
@@ -57,5 +58,13 @@ public final class StatusOutputNode {
     }
     this.setShuffle(player.getShuffleStates().isShuffled());
     this.setPaused(player.getPlayPauseState().isPaused());
+  }
+
+  public StatusOutputNode() {
+    this.setName("");
+    this.setRemainedTime(0L);
+    this.setRepeat("No Repeat");
+    this.setShuffle(false);
+    this.setPaused(true);
   }
 }

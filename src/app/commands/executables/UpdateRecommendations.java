@@ -4,10 +4,13 @@ import app.commands.Executable;
 import app.helpers.UserType;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.recommendations.RecommendationType;
+import app.recommendations.strategy.concrete.FansPlaylistRecommendationStrategy;
+import app.recommendations.strategy.concrete.RandomPlaylistRecommendationStrategy;
+import app.recommendations.strategy.concrete.SongRecommendationStrategy;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
-import library.entities.audio.audio.collections.Playlist;
-import library.entities.audio.audioFiles.Song;
+import library.entities.audio.AudioEntity;
 import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,23 +34,24 @@ public class UpdateRecommendations implements Executable {
           command, command.getUsername() + NOT_NORMAL_USER_ERROR_MESSAGE);
     }
 
-    Song randomSong = user.getRecommendations().randomSong(user);
-    Playlist randomPlaylist = user.getRecommendations().randomPlaylist(user);
+    AudioEntity recommendation;
 
-    if (randomSong == null && randomPlaylist == null) {
+    RecommendationType type = RecommendationType.valueOf(command.getRecommendationType().toUpperCase());
+    recommendation = switch (type) {
+      case RANDOM_SONG -> new SongRecommendationStrategy().getRecommendation(user);
+      case RANDOM_PLAYLIST -> new RandomPlaylistRecommendationStrategy().getRecommendation(user);
+      case FANS_PLAYLIST -> new FansPlaylistRecommendationStrategy().getRecommendation(user);
+    };
+
+    if (recommendation == null) {
       return new UpdateRecommendationsOutputNode(
           command, "No new recommendations were found.");
     }
 
-    if (randomSong != null) {
-      user.getRecommendations().getSongRecommendations().add(randomSong);
-    }
-    if(randomPlaylist != null) {
-      user.getRecommendations().getPlaylistRecommendations().add(randomPlaylist);
-    }
+    user.getRecommendations().add(recommendation);
 
     return new UpdateRecommendationsOutputNode(
-        command, "The recommendations for user " + user.getUsername() + "have been updated successfully.");
+        command, "The recommendations for user " + user.getUsername() + " have been updated successfully.");
   }
 
   @Getter
