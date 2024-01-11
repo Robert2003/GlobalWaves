@@ -11,6 +11,8 @@ import app.commands.Executable;
 import app.helpers.UserType;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.notifications.Notification;
+import app.notifications.observer.NotificationType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,6 +52,10 @@ public final class AddAlbum implements Executable {
         Library.getInstance().getSongs().add(song);
       }
     }
+
+    Notification notification = new Notification(NotificationType.NEW_ALBUM, "New Album from " + user.getUsername() + ".");
+    user.notifyObservers(notification);
+
     return new AddAlbumOutputNode(command, command.getUsername() + ADD_ALBUM_NO_ERROR_MESSAGE);
   }
 

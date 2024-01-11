@@ -15,6 +15,7 @@ import app.commands.executables.DeleteUser;
 import app.commands.executables.Follow;
 import app.commands.executables.Forward;
 import app.commands.executables.GetAllUsers;
+import app.commands.executables.GetNotifications;
 import app.commands.executables.GetOnlineUsers;
 import app.commands.executables.GetTop5Albums;
 import app.commands.executables.GetTop5Artists;
@@ -43,6 +44,7 @@ import app.commands.executables.ShowPodcasts;
 import app.commands.executables.ShowPreferredSongs;
 import app.commands.executables.Shuffle;
 import app.commands.executables.Status;
+import app.commands.executables.Subscribe;
 import app.commands.executables.SwitchConnectionStatus;
 import app.commands.executables.SwitchVisibility;
 import app.commands.executables.UpdateRecommendations;
@@ -148,6 +150,8 @@ public final class CommandManager {
       case NEXT_PAGE -> new NextPage().execute(command);
       case PREVIOUS_PAGE -> new PreviousPage().execute(command);
       case LOAD_RECOMMENDATIONS -> new LoadRecommendations().execute(command);
+      case SUBSCRIBE -> new Subscribe().execute(command);
+      case GET_NOTIFICATIONS -> new GetNotifications().execute(command);
       case DEFAULT -> null;
     };
   }

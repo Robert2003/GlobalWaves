@@ -10,6 +10,8 @@ import app.commands.Executable;
 import app.helpers.UserType;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.notifications.Notification;
+import app.notifications.observer.NotificationType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.entities.Announcement;
@@ -38,6 +40,10 @@ public final class AddAnnouncement implements Executable {
 
     Announcement announcement = new Announcement(command);
     user.getAnnouncements().add(announcement);
+
+    Notification notification = new Notification(NotificationType.NEW_ANNOUNCEMENT, "New Announcement from " + user.getUsername() + ".");
+    user.notifyObservers(notification);
+
     return new AddAnnouncementOutputNode(
         command, command.getUsername() + ADD_ANNOUNCEMENT_NO_ERROR_MESSAGE);
   }

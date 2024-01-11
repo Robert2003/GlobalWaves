@@ -51,6 +51,8 @@ public enum CommandTypes {
   NEXT_PAGE("nextPage"),
   PREVIOUS_PAGE("previousPage"),
   LOAD_RECOMMENDATIONS("loadRecommendations"),
+  SUBSCRIBE("subscribe"),
+  GET_NOTIFICATIONS("getNotifications"),
   DEFAULT("default");
 
   private final String description;

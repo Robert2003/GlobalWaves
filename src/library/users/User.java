@@ -6,6 +6,9 @@ import app.helpers.UserType;
 import app.history.History;
 import app.io.nodes.input.InputNode;
 import app.monetization.Monetization;
+import app.notifications.Notification;
+import app.notifications.observer.Observer;
+import app.notifications.observer.Subject;
 import app.pagination.Page;
 import app.pagination.PageHistory;
 import app.pagination.concretepages.ArtistPage;
@@ -14,6 +17,7 @@ import app.pagination.enums.PageType;
 import app.pagination.factory.PageFactory;
 import app.recommendations.Recommendations;
 import app.searchbar.SearchBar;
+import app.searchbar.SearchType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,7 @@ import library.entities.Event;
 import library.entities.Merch;
 import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Playlist;
+import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Song;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +36,7 @@ import lombok.Setter;
 /** Represents a User in the music player application. */
 @Getter
 @Setter
-public final class User {
+public final class User implements Subject, Observer {
   private String username;
   private int age;
   private String city;
@@ -59,6 +64,10 @@ public final class User {
   @JsonIgnore private Recommendations recommendations;
   @JsonIgnore private PageHistory pageHistory;
 
+  @JsonIgnore private List<Observer> observers;
+  @JsonIgnore private List<User> subscribedUsers;
+  @JsonIgnore private List<Notification> notifications;
+
   public User() {
     this.setSearchBar(new SearchBar());
     this.setAudioPlayer(new AudioPlayer());
@@ -72,6 +81,9 @@ public final class User {
     this.setBoughtMerch(new ArrayList<>());
     this.setRecommendations(new Recommendations());
     this.setPageHistory(new PageHistory());
+    this.setObservers(new ArrayList<>());
+    this.setSubscribedUsers(new ArrayList<>());
+    this.setNotifications(new ArrayList<>());
     changePage(PageType.HOME_PAGE, true);
   }
 
@@ -89,6 +101,9 @@ public final class User {
     this.setBoughtMerch(new ArrayList<>());
     this.setRecommendations(new Recommendations());
     this.setPageHistory(new PageHistory());
+    this.setObservers(new ArrayList<>());
+    this.setSubscribedUsers(new ArrayList<>());
+    this.setNotifications(new ArrayList<>());
     this.setConnectionStatus(ConnectionStatus.ONLINE);
     this.setAddOnPlatformTimestamp(command.getTimestamp());
     switch (command.getType()) {
@@ -122,6 +137,21 @@ public final class User {
    */
   public void changePage(final PageType type, final boolean addToHistory) {
     Page newPage = PageFactory.createPage(type);
+
+    if (type == PageType.HOST_PAGE) {
+      String hostName = null;
+      if (getAudioPlayer().hasLoadedTrack() && getAudioPlayer().getLoadedTrack().getType() == SearchType.PODCAST) {
+        hostName = ((Podcast)getAudioPlayer().getLoadedTrack()).getOwner();
+      }
+      ((HostPage) newPage).setHostName(hostName);
+    } else if (type == PageType.ARTIST_PAGE) {
+      String artistName = null;
+      if (getAudioPlayer().hasLoadedTrack() && getAudioPlayer().getLoadedTrack().getType() == SearchType.ALBUM) {
+        artistName = ((Podcast)getAudioPlayer().getLoadedTrack()).getOwner();
+      }
+      ((ArtistPage) newPage).setArtistName(artistName);
+    }
+
     if (addToHistory) {
       pageHistory.addPage(newPage);
     }
@@ -205,5 +235,27 @@ public final class User {
     }
 
     return false;
+  }
+
+  @Override
+  public void addObserver(Observer observer) {
+    getObservers().add(observer);
+  }
+
+  @Override
+  public void removeObserver(Observer observer) {
+    getObservers().remove(observer);
+  }
+
+  @Override
+  public void notifyObservers(Notification notification) {
+    for (Observer observer : observers) {
+      observer.update(notification);
+    }
+  }
+
+  @Override
+  public void update(Notification notification) {
+    getNotifications().add(notification);
   }
 }

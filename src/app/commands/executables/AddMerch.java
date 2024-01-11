@@ -11,6 +11,8 @@ import app.commands.Executable;
 import app.helpers.UserType;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.notifications.Notification;
+import app.notifications.observer.NotificationType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.entities.Merch;
@@ -41,6 +43,10 @@ public final class AddMerch implements Executable {
 
     Merch merch = new Merch(command);
     user.getMerch().add(merch);
+
+    Notification notification = new Notification(NotificationType.NEW_MERCHANDISE, "New Merchandise from " + user.getUsername() + ".");
+    user.notifyObservers(notification);
+
     return new AddMerchOutputNode(
         command, command.getUsername() + ADD_MERCHANDISE_NO_ERROR_MESSAGE);
   }
