@@ -39,6 +39,11 @@ public final class SongTimeManagerStrategy extends TimeManagerStrategy {
       }
     } else {
       this.setElapsedTime(this.getElapsedTime() + timeToAdd);
+      long currentTimestamp = getLastTimeUpdated() + timeToAdd;
+
+      if (getRemainingTime(audioPlayer) <= 0 && audioPlayer.getAdShouldBePlayed()) {
+        audioPlayer.startAd(currentTimestamp);
+      }
     }
 
     return history;

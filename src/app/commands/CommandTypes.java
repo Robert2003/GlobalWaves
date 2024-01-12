@@ -55,6 +55,7 @@ public enum CommandTypes {
   GET_NOTIFICATIONS("getNotifications"),
   BUY_PREMIUM("buyPremium"),
   CANCEL_PREMIUM("cancelPremium"),
+  AD_BREAK("adBreak"),
   DEFAULT("default");
 
   private final String description;

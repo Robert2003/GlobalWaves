@@ -4,7 +4,6 @@ import static app.searchbar.SearchType.ALBUM;
 import static app.searchbar.SearchType.NOT_INITIALIZED;
 import static app.searchbar.SearchType.PLAYLIST;
 import static app.searchbar.SearchType.PODCAST;
-import static app.searchbar.SearchType.SONG;
 
 import app.Constants;
 import app.audio.player.states.PlayerPlayPauseStates;
@@ -19,6 +18,7 @@ import app.io.nodes.input.InputNode;
 import app.io.nodes.output.NextPrevOutputNode;
 import app.io.nodes.output.PlayerOutputNode;
 import app.io.nodes.output.StatusOutputNode;
+import app.monetization.payment.FreePaymentStrategy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +29,6 @@ import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audio.collections.SongAudioCollection;
-import library.entities.audio.audioFiles.AudioFile;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
 import lombok.Getter;
@@ -49,8 +48,9 @@ public final class AudioPlayer {
   private HashMap<Podcast, Long> podcastHistory = new HashMap<>();
   private Random random;
 
-  private boolean shouldAddBePlayed = false;
-  private long addStartTimestamp;
+  private User owner;
+
+  private Ad ad = new Ad();
 
   /** Empties the player, resetting its state and clearing the loaded track. */
   public void stopPlayback() {
@@ -80,7 +80,8 @@ public final class AudioPlayer {
    * Loads a track or audio entity based on the given input command.
    *
    * @param command The input command used to specify the loading action.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} containing the result of the load operation.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} containing the result of the load
+   *     operation.
    */
   public PlayerOutputNode load(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
@@ -110,6 +111,11 @@ public final class AudioPlayer {
     AudioEntity playingEntity = getTimeManager().getPlayingAudioEntity(this);
     user.getHistory().add(playingEntity, command.getTimestamp());
 
+    if (user.getAudioPlayer().getAdShouldBePlayed()) {
+      //      user.getHistory().removeLastAd();
+      user.getAudioPlayer().getAd().resetAd();
+    }
+
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
   }
 
@@ -117,7 +123,8 @@ public final class AudioPlayer {
    * Toggles between play and pause states.
    *
    * @param command The input command used to toggle play/pause.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} containing the result of the toggle operation.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} containing the result of the toggle
+   *     operation.
    */
   public PlayerOutputNode togglePlayPause(final InputNode command) {
     String message = null;
@@ -175,7 +182,8 @@ public final class AudioPlayer {
    * Toggles between shuffle ON and shuffle OFF in a playlist
    *
    * @param command The input command used to shuffle the playlist.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} containing the result of the shuffle operation.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} containing the result of the shuffle
+   *     operation.
    */
   public PlayerOutputNode shuffle(final InputNode command) {
     String message;
@@ -241,7 +249,8 @@ public final class AudioPlayer {
    * Moves the playback 90 seconds forward in a podcast.
    *
    * @param command The input command for moving forward.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the forward action.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the forward
+   *     action.
    */
   public PlayerOutputNode forward(final InputNode command) {
     if (!this.hasLoadedTrack()) {
@@ -259,7 +268,8 @@ public final class AudioPlayer {
    * Moves the playback 90 seconds backward in a podcast.
    *
    * @param command The input command for moving backward.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the backward action.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the backward
+   *     action.
    */
   public PlayerOutputNode backward(final InputNode command) {
     return timeManager.backward(this, command);
@@ -269,9 +279,9 @@ public final class AudioPlayer {
    * Wrapper for next command
    *
    * @param command The InputNode command that triggered this action.
-   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the action's result,
-   *     including a message indicating the successful move to the next track or an error message if
-   *     no track is loaded.
+   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the
+   *     action's result, including a message indicating the successful move to the next track or an
+   *     error message if no track is loaded.
    */
   public NextPrevOutputNode next(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
@@ -287,9 +297,9 @@ public final class AudioPlayer {
    * Wrapper for prev command
    *
    * @param command The InputNode command that triggered this action.
-   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the action's result,
-   *     including a message indicating the successful move to the previous track or an error
-   *     message if no track is loaded.
+   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the
+   *     action's result, including a message indicating the successful move to the previous track
+   *     or an error message if no track is loaded.
    */
   public NextPrevOutputNode prev(final InputNode command) {
     if (timeManager != null) {
@@ -313,6 +323,14 @@ public final class AudioPlayer {
     return this.getLoadedTrack() != null
         && this.getLoadedTrack().getType() != NOT_INITIALIZED
         && this.getPlayPauseState() != PlayerPlayPauseStates.STOPPED;
+  }
+
+  public boolean hasLoadedMusic() {
+    if (!this.hasLoadedTrack()) {
+      return false;
+    }
+
+    return this.getLoadedTrack().getType() != PODCAST;
   }
 
   /// HELPER METHODS ///
@@ -447,8 +465,9 @@ public final class AudioPlayer {
 
     if (user.getConnectionStatus() == ConnectionStatus.ONLINE
         && this.getPlayPauseState() == PlayerPlayPauseStates.PLAYING) {
-      History history = getTimeManager()
-          .addTime(this, command.getTimestamp() - getTimeManager().getLastTimeUpdated());
+      History history =
+          getTimeManager()
+              .addTime(this, command.getTimestamp() - getTimeManager().getLastTimeUpdated());
       user.getHistory().add(history, command.getTimestamp());
     }
     getTimeManager().setLastTimeUpdated(command.getTimestamp());
@@ -458,7 +477,36 @@ public final class AudioPlayer {
     }
   }
 
-    public void addShouldBePlayed() {
-        shouldAddBePlayed = true;
+  public boolean getAdShouldBePlayed() {
+    if (ad == null) {
+      return false;
     }
+
+    return ad.isShouldAdBePlayed();
+  }
+
+  public void startAd(long timestamp) {
+    this.getAd().setShouldAdBePlayed(false);
+    this.getAd().setAdPlaying(true);
+
+//    this.getTimeManager().setElapsedTime(Math.max(0, getTimeManager().getElapsedTime() - 10));
+    this.getAd().setAdStartTimestamp(timestamp);
+
+    getOwner().getHistory().add(Library.getInstance().getSongs().get(0), timestamp);
+    new FreePaymentStrategy().pay(getOwner(), this.getAd().getPrice());
+  }
+
+  public long stopAdIfNecessary(long timestamp) {
+    if (this.getAd().isAdPlaying() && timestamp - this.getAd().getAdStartTimestamp() >= 10) {
+      this.getAd().setAdPlaying(false);
+      this.getTimeManager().setElapsedTime(Math.max(0, getTimeManager().getElapsedTime() - 9));
+      return timestamp - this.getAd().getAdStartTimestamp() + 10;
+    }
+
+    return 9999999;
+  }
+
+  public boolean isAdBeingPlayed() {
+    return this.getAd().isAdPlaying();
+  }
 }

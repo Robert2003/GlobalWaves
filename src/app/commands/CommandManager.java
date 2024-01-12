@@ -1,5 +1,6 @@
 package app.commands;
 
+import app.commands.executables.AdBreak;
 import app.commands.executables.AddAlbum;
 import app.commands.executables.AddAnnouncement;
 import app.commands.executables.AddEvent;
@@ -156,6 +157,7 @@ public final class CommandManager {
       case GET_NOTIFICATIONS -> new GetNotifications().execute(command);
       case BUY_PREMIUM -> new BuyPremium().execute(command);
       case CANCEL_PREMIUM -> new CancelPremium().execute(command);
+      case AD_BREAK -> new AdBreak().execute(command);
       case DEFAULT -> null;
     };
   }

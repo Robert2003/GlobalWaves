@@ -1,6 +1,5 @@
 package app.commands.executables;
 
-import app.Constants;
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
@@ -15,29 +14,36 @@ import static app.Constants.THE_USERNAME;
 
 public class AdBreak implements Executable {
 
-	@Override
-	public Node execute(InputNode command) {
-		User user = Library.getInstance().getUserByName(command.getUsername());
+  @Override
+  public Node execute(InputNode command) {
+    User user = Library.getInstance().getUserByName(command.getUsername());
 
-		if (user == null) {
-			return new AdBreakOutputNode(command, THE_USERNAME + command.getUsername() + DOESNT_EXIST);
-		}
+    if (user == null) {
+      return new AdBreakOutputNode(command, THE_USERNAME + command.getUsername() + DOESNT_EXIST);
+    }
 
-		return null;
-	}
+    if (!user.getAudioPlayer().hasLoadedMusic()) {
+      return new AdBreakOutputNode(command, command.getUsername() + " is not playing any music.");
+    }
 
-	@Getter
-	@Setter
-	@JsonPropertyOrder({"command", "user", "timestamp", "message"})
-	private final class AdBreakOutputNode extends Node {
-		private String user;
-		private String message;
+    user.getAudioPlayer().getAd().setShouldAdBePlayed(true);
+    user.getAudioPlayer().getAd().setPrice(command.getPrice());
 
-		AdBreakOutputNode(final InputNode command, final String message) {
-			this.setCommand(command.getCommand());
-			this.setTimestamp(command.getTimestamp());
-			this.setUser(command.getUsername());
-			this.setMessage(message);
-		}
-	}
+    return new AdBreakOutputNode(command, "Ad inserted successfully.");
+  }
+
+  @Getter
+  @Setter
+  @JsonPropertyOrder({"command", "user", "timestamp", "message"})
+  private final class AdBreakOutputNode extends Node {
+    private String user;
+    private String message;
+
+    AdBreakOutputNode(final InputNode command, final String message) {
+      this.setCommand(command.getCommand());
+      this.setTimestamp(command.getTimestamp());
+      this.setUser(command.getUsername());
+      this.setMessage(message);
+    }
+  }
 }

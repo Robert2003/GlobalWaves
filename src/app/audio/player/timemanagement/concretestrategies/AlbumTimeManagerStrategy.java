@@ -110,6 +110,9 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
           timeToFinish = timeToAddCopy;
 
         setElapsedTime(getElapsedTime() + timeToFinish);
+
+        long timeSinceAdEnded = audioPlayer.stopAdIfNecessary(getElapsedTime());
+
         long remainingSongTime = getRemainingTime(audioPlayer);
 
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
@@ -118,7 +121,18 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
         currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
         if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
           history.add(currentSong, currentTimestamp);
+
+          if (audioPlayer.getAdShouldBePlayed()) {
+            audioPlayer.startAd(currentTimestamp);
+          }
         }
+//        else if (currentSong != null && currentSong.getDuration() - getRemainingTime(audioPlayer) == timeSinceAdEnded && !audioPlayer.isAdBeingPlayed()) {
+//          history.add(currentSong, currentTimestamp);
+//
+//          if (audioPlayer.getAdShouldBePlayed()) {
+//            audioPlayer.startAd(currentTimestamp);
+//          }
+//        }
       }
     }
 

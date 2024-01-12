@@ -59,6 +59,7 @@ public final class Library {
     for (User user : getInstance().getUsers()) {
       user.setSearchBar(new SearchBar());
       user.setAudioPlayer(new AudioPlayer());
+      user.getAudioPlayer().setOwner(user);
       user.setFollowedPlaylists(new ArrayList<>());
       user.setOwnedPlaylists(new ArrayList<>());
       user.setLikedSongs(new ArrayList<>());

@@ -78,6 +78,7 @@ public final class User implements Subject, Observer {
   public User() {
     this.setSearchBar(new SearchBar());
     this.setAudioPlayer(new AudioPlayer());
+    getAudioPlayer().setOwner(this);
     this.setLikedSongs(new ArrayList<>());
     this.setOwnedPlaylists(new ArrayList<>());
     this.setFollowedPlaylists(new ArrayList<>());
@@ -101,6 +102,7 @@ public final class User implements Subject, Observer {
     this.setCity(command.getCity());
     this.setSearchBar(new SearchBar());
     this.setAudioPlayer(new AudioPlayer());
+    getAudioPlayer().setOwner(this);
     this.setLikedSongs(new ArrayList<>());
     this.setOwnedPlaylists(new ArrayList<>());
     this.setFollowedPlaylists(new ArrayList<>());
@@ -277,7 +279,7 @@ public final class User implements Subject, Observer {
       getPremiumHistory().addState(UserPremiumState.PREMIUM, currentTimestamp);
     } else {
       getPremiumHistory().addState(UserPremiumState.FREE, currentTimestamp);
-      new PremiumPaymentStrategy().pay(this);
+      new PremiumPaymentStrategy().pay(this, 0);
     }
   }
 }

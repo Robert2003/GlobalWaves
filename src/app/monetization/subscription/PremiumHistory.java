@@ -50,4 +50,17 @@ public class PremiumHistory {
 		}
 		return -1;
 	}
+
+	public long getLastFreeTimestamp() {
+		if (!getStateHistory().contains(FREE)) {
+			return -1;
+		}
+
+		for (int i = getStateHistory().size() - 1; i >= 0; i--) {
+			if (getStateHistory().get(i) == FREE) {
+				return getTimestampHistory().get(i);
+			}
+		}
+		return -1;
+	}
 }

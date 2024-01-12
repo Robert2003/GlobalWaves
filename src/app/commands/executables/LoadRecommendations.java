@@ -48,6 +48,11 @@ public class LoadRecommendations implements Executable {
         user.getAudioPlayer().getTimeManager().getPlayingAudioEntity(user.getAudioPlayer());
     user.getHistory().add(playingEntity, command.getTimestamp());
 
+    if (user.getAudioPlayer().getAdShouldBePlayed()) {
+      user.getHistory().removeLastAd();
+      user.getAudioPlayer().getAd().resetAd();
+    }
+
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
   }
 }

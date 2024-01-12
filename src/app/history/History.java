@@ -1,18 +1,12 @@
 package app.history;
 
-import static app.searchbar.SearchType.NOT_INITIALIZED;
 import static app.searchbar.SearchType.SONG;
-
-import app.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import library.Library;
 import library.entities.audio.AudioEntity;
@@ -26,15 +20,30 @@ import lombok.Setter;
 public class History {
   private Map<AudioEntity, Integer> historyMap;
   private List<OrderedHistory> orderHistoryMap;
+  private List<OrderedHistory> adsHistory;
 
   public History() {
     this.setHistoryMap(new LinkedHashMap<>());
     this.setOrderHistoryMap(new ArrayList<>());
+    this.setAdsHistory(new ArrayList<>());
   }
 
   public void add(AudioEntity entity, long timestamp) {
     if (entity == null) {
       return;
+    }
+
+    if (entity.equals(Library.getInstance().getSongs().get(0))) {
+      getAdsHistory().add(new OrderedHistory(entity, timestamp));
+      return;
+    }
+
+    if (entity.getType() == SONG && timestamp < 20668) {
+      Song song = (Song) entity;
+
+      if (song.getAlbum().equals("Greatest Hits")) {
+        System.out.println("DA");
+      }
     }
 
     if (getHistoryMap().containsKey(entity)) {
@@ -100,5 +109,20 @@ public class History {
     }
 
     return artists;
+  }
+
+  public long getLastAdTimestamp() {
+    if (getAdsHistory().size() <= 1) {
+      return -1;
+    }
+
+    return getAdsHistory().get(getAdsHistory().size() - 2).getAddTimestamp();
+  }
+
+  public void removeLastAd() {
+    if (getAdsHistory().isEmpty()) {
+      return;
+    }
+    getAdsHistory().remove(getAdsHistory().size() - 1);
   }
 }

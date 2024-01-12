@@ -97,7 +97,7 @@ public final class Main {
 
     for (User user : Library.getInstance().getNormalUsers()){
       if (user.getPremiumState() == UserPremiumState.PREMIUM) {
-        new PremiumPaymentStrategy().pay(user);
+        new PremiumPaymentStrategy().pay(user, 0);
       }
     }
 

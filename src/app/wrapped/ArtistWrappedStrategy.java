@@ -6,6 +6,7 @@ import static app.searchbar.SearchType.SONG;
 import app.Constants;
 import app.commands.Executable;
 import app.commands.executables.Wrapped;
+import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import java.util.HashMap;
@@ -33,6 +34,10 @@ public class ArtistWrappedStrategy implements Executable {
     out.getResult().setTopFans(getTop5Fans(artist));
     out.getResult().setListeners(getListeners(artist));
 
+    if (command.getTimestamp() == 13709) {
+      System.out.println(out.getResult().getTopAlbums().get("Greatest Hits"));
+    }
+
     if (out.getResult().getTopSongs().size() == 0
         && out.getResult().getTopAlbums().size() == 0
         && out.getResult().getTopFans().size() == 0
@@ -49,7 +54,7 @@ public class ArtistWrappedStrategy implements Executable {
 
     for (User user : Library.getInstance().getNormalUsers()) {
       for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-        if (entry.getKey().getType() == SONG) {
+        if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
           Song song = (Song) entry.getKey();
           String artistName = song.getArtist();
 
@@ -82,11 +87,11 @@ public class ArtistWrappedStrategy implements Executable {
 
     for (User user : Library.getInstance().getNormalUsers()) {
       for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-        if (entry.getKey().getType() == SONG) {
+        if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
           String albumName = ((Song) entry.getKey()).getAlbum();
           String artistName = ((Song) entry.getKey()).getArtist();
 
-          if (!artist.getUsername().equals(artistName) || !artist.hasAlbum(albumName)) {
+          if (!(artist.getUsername().equals(artistName) && artist.hasAlbum(albumName))) {
             continue;
           }
 
@@ -116,7 +121,7 @@ public class ArtistWrappedStrategy implements Executable {
 
     for (User user : Library.getInstance().getNormalUsers()) {
       for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-        if (entry.getKey().getType() == SONG) {
+        if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
           Song song = (Song) entry.getKey();
           String artistName = song.getArtist();
 
@@ -155,7 +160,7 @@ public class ArtistWrappedStrategy implements Executable {
 
     for (User user : Library.getInstance().getNormalUsers()) {
       for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-        if (entry.getKey().getType() == SONG) {
+        if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
           Song song = (Song) entry.getKey();
           String artistName = song.getArtist();
 

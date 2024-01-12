@@ -6,6 +6,7 @@ import app.commands.executables.Wrapped;
 import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.pagination.Page;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
@@ -32,6 +33,21 @@ public class UserWrappedStrategy implements Executable {
 		out.getResult().setTopGenres(getTop5Genres(user));
 		out.getResult().setTopArtists(getTop5Artists(user));
 
+
+//		if (command.getTimestamp() == 12102) {
+//            System.out.println(out.getResult().getTopArtists().get("Fleetwood Mac"));
+//			int cnt = 0;
+//			for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
+//				if (order.getEntity().getType() == SONG) {
+//					Song song = (Song) order.getEntity();
+//					if (song.getArtist().equals("Fleetwood Mac")) {
+//						cnt++;
+//					}
+//				}
+//			}
+//            System.out.println(cnt);
+//		}
+
 		if (out.getResult().getTopSongs().isEmpty()
 				&& out.getResult().getTopAlbums().isEmpty()
 				&& out.getResult().getTopGenres().isEmpty()
@@ -47,7 +63,7 @@ public class UserWrappedStrategy implements Executable {
 	public Map<String, Integer> getTop5Songs(final User user) {
         Map<String, Integer> top5Songs = new LinkedHashMap<>();
 		for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
-			if (order.getEntity().getType() == SONG) {
+			if (order.getEntity().getType() == SONG && !order.getEntity().equals(Library.getInstance().getSongs().get(0))) {
 				Song song = (Song) order.getEntity();
 				top5Songs.put(song.getName(), user.getHistory().getCount(song));
 			}
@@ -96,7 +112,7 @@ public class UserWrappedStrategy implements Executable {
 		Map<String, Integer> albums = new HashMap<>();
 
 		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-			if (entry.getKey().getType() == SONG) {
+			if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
 				String albumName = ((Song) entry.getKey()).getAlbum();
 
 				if (albums.containsKey(albumName)) {
@@ -108,7 +124,7 @@ public class UserWrappedStrategy implements Executable {
 		}
 
 		return albums.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
 				.limit(Constants.PRINT_LIMIT)
 				.collect(
 						Collectors.toMap(
@@ -119,7 +135,7 @@ public class UserWrappedStrategy implements Executable {
 		Map<String, Integer> genres = new HashMap<>();
 
 		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-			if (entry.getKey().getType() == SONG) {
+			if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
 				String genre = ((Song) entry.getKey()).getGenre();
 
 				if (genres.containsKey(genre)) {
@@ -131,7 +147,7 @@ public class UserWrappedStrategy implements Executable {
 		}
 
 		return genres.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
 				.limit(Constants.PRINT_LIMIT)
 				.collect(
 						Collectors.toMap(
@@ -141,17 +157,26 @@ public class UserWrappedStrategy implements Executable {
 	public Map<String, Integer> getTop5Artists(final User user) {
 		Map<String, Integer> artists = new HashMap<>();
 
-		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-			if (entry.getKey().getType() == SONG) {
-				String artistName = ((Song) entry.getKey()).getArtist();
+		for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
+			if (order.getEntity().getType() == SONG) {
+				Song song = (Song) order.getEntity();
 
-				if (artists.containsKey(artistName)) {
-					artists.put(artistName, artists.get(artistName) + entry.getValue());
-				} else {
-					artists.put(artistName, entry.getValue());
-				}
+				int newCnt = artists.getOrDefault(song.getArtist(), 0) + 1;
+				artists.put(song.getArtist(), newCnt);
 			}
 		}
+
+//		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
+//			if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
+//				String artistName = ((Song) entry.getKey()).getArtist();
+//
+//				if (artists.containsKey(artistName)) {
+//					artists.put(artistName, artists.get(artistName) + entry.getValue());
+//				} else {
+//					artists.put(artistName, entry.getValue());
+//				}
+//			}
+//		}
 
 		return artists.entrySet().stream()
 				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))

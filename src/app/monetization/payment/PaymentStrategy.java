@@ -6,7 +6,7 @@ import library.users.User;
 import java.util.List;
 
 public interface PaymentStrategy {
-	void pay(User user);
+	void pay(User user, double price);
 
 	List<AudioEntity> getEntitiesToPayForArtist(User user, String artistName);
 }

@@ -1,5 +1,6 @@
 package app.monetization.payment;
 
+import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
@@ -10,9 +11,9 @@ import java.util.Map;
 
 import static app.searchbar.SearchType.SONG;
 
-public class PremiumPaymentStrategy implements PaymentStrategy{
+public class  PremiumPaymentStrategy implements PaymentStrategy{
 	@Override
-	public void pay(User user) {
+	public void pay(User user, double price) {
 		long lastPremiumTimestamp = user.getPremiumHistory().getLastPremiumTimestamp();
 
 		if (lastPremiumTimestamp == -1) {
@@ -46,7 +47,7 @@ public class PremiumPaymentStrategy implements PaymentStrategy{
 
 		for (int i = lastPayIndex; i <= currentIndex; i++) {
 			AudioEntity entity = user.getHistory().getOrderHistoryMap().get(i).getEntity();
-			if (entity.getType() == SONG) {
+			if (entity.getType() == SONG && !entity.equals(Library.getInstance().getSongs().get(0))) {
 				Song song = (Song) entity;
 				if (song.getArtist().equals(artistName)) {
 					entitiesToPay.add(song);
