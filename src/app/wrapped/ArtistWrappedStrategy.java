@@ -38,7 +38,7 @@ public class ArtistWrappedStrategy implements Executable {
         && out.getResult().getTopFans().size() == 0
         && out.getResult().getListeners() == 0) {
       out.setResult(null);
-      out.setMessage("No data to show for user " + command.getUsername() + ".");
+      out.setMessage("No data to show for artist " + command.getUsername() + ".");
     }
 
     return out;

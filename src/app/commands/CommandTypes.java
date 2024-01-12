@@ -53,6 +53,8 @@ public enum CommandTypes {
   LOAD_RECOMMENDATIONS("loadRecommendations"),
   SUBSCRIBE("subscribe"),
   GET_NOTIFICATIONS("getNotifications"),
+  BUY_PREMIUM("buyPremium"),
+  CANCEL_PREMIUM("cancelPremium"),
   DEFAULT("default");
 
   private final String description;

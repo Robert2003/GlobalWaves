@@ -6,6 +6,8 @@ import app.commands.executables.EndProgram;
 import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.monetization.payment.PremiumPaymentStrategy;
+import app.monetization.subscription.UserPremiumState;
 import checker.Checker;
 import checker.CheckerConstants;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -90,6 +92,12 @@ public final class Main {
 
         JsonNode commandNode = objectMapper.valueToTree(out);
         outputs.add(commandNode);
+      }
+    }
+
+    for (User user : Library.getInstance().getNormalUsers()){
+      if (user.getPremiumState() == UserPremiumState.PREMIUM) {
+        new PremiumPaymentStrategy().pay(user);
       }
     }
 

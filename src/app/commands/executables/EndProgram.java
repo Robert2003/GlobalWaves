@@ -3,14 +3,14 @@ package app.commands.executables;
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.monetization.Monetization;
+import app.wrapped.ArtistWrappedStrategy;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import app.monetization.Monetization;
-import app.wrapped.ArtistWrappedStrategy;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.users.User;
@@ -56,20 +56,37 @@ public class EndProgram implements Executable {
     protected void addRevenue(User artist) {
       Revenue revenue = new Revenue();
 
-      revenue.setSongRevenue(artist.getMonetization().getTotalSongRevenue());
-      revenue.setMerchRevenue(artist.getMonetization().getTotalMerchRevenue());
+      double songRevenue =
+          Math.round(artist.getMonetization().getTotalSongRevenue() * 100.0) / 100.0;
+      revenue.setSongRevenue(songRevenue);
+
+      double merchRevenue =
+          Math.round(artist.getMonetization().getTotalMerchRevenue() * 100.0) / 100.0;
+      revenue.setMerchRevenue(merchRevenue);
+
       revenue.setRanking(ranking);
 
       Map.Entry<AudioEntity, Double> maxEntry = null;
 
-      for (Map.Entry<AudioEntity, Double> entry :
-          artist.getMonetization().getSongRevenue().entrySet()) {
-        if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+      for (Map.Entry<AudioEntity, Double> entry : artist.getMonetization().getSongRevenue().entrySet()) {
+        Double roundedValue = entry.getValue();
+        if (maxEntry == null) {
           maxEntry = entry;
+        } else {
+          Double roundedMaxValue = maxEntry.getValue();
+          int valueCompare = roundedMaxValue.compareTo(roundedValue);
+          if (valueCompare < 0) {
+            maxEntry = entry;
+          } else if (valueCompare == 0) {
+            if (maxEntry.getKey().getName().compareTo(entry.getKey().getName()) > 0) {
+              maxEntry = entry;
+            }
+          }
         }
       }
 
-      revenue.setMostProfitableSong(maxEntry != null ? maxEntry.getKey().getName() : "N/A");
+      revenue.setMostProfitableSong(
+          maxEntry != null ? maxEntry.getKey().getName() : "N/A");
 
       if (!ArtistWrappedStrategy.getTop5Songs(artist).isEmpty() || revenue.getMerchRevenue() != 0) {
         getResult().put(artist.getUsername(), revenue);

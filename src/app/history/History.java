@@ -7,12 +7,17 @@ import app.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
+import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -68,5 +73,32 @@ public class History {
     }
 
     return cnt;
+  }
+
+  public int getIndexForTimestamp(long timestamp) {
+    for (int i = 0; i < getOrderHistoryMap().size(); i++) {
+      if (getOrderHistoryMap().get(i).getAddTimestamp() >= timestamp) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  public Map<User, Integer> getListenedArtistsBetween(int index1, int index2) {
+    Map<User, Integer> artists = new HashMap<>();
+
+    for (int i = index1; i <= index2; i++) {
+      AudioEntity entity = getOrderHistoryMap().get(i).getEntity();
+      if (entity.getType() == SONG) {
+        Song song = (Song) entity;
+        User artist = Library.getInstance().getUserByName(song.getArtist());
+        if (artist != null) {
+          artists.put(artist, artists.getOrDefault(artist, 0) + 1);
+        }
+      }
+    }
+
+    return artists;
   }
 }

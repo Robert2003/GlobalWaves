@@ -41,7 +41,9 @@ public final class AddAnnouncement implements Executable {
     Announcement announcement = new Announcement(command);
     user.getAnnouncements().add(announcement);
 
-    Notification notification = new Notification(NotificationType.NEW_ANNOUNCEMENT, "New Announcement from " + user.getUsername() + ".");
+    Notification notification =
+        new Notification(
+            NotificationType.NEW_ANNOUNCEMENT, "New Announcement from " + user.getUsername() + ".");
     user.notifyObservers(notification);
 
     return new AddAnnouncementOutputNode(

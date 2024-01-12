@@ -48,7 +48,8 @@ public final class AddEvent implements Executable {
     Event event = new Event(command);
     user.getEvents().add(event);
 
-    Notification notification = new Notification(NotificationType.NEW_EVENT, "New Event from " + user.getUsername() + ".");
+    Notification notification =
+        new Notification(NotificationType.NEW_EVENT, "New Event from " + user.getUsername() + ".");
     user.notifyObservers(notification);
 
     return new AddEventOutputNode(command, command.getUsername() + ADD_EVENT_NO_ERROR_MESSAGE);

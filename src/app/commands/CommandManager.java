@@ -9,6 +9,8 @@ import app.commands.executables.AddRemoveInPlaylist;
 import app.commands.executables.AddUser;
 import app.commands.executables.Backward;
 import app.commands.executables.BuyMerch;
+import app.commands.executables.BuyPremium;
+import app.commands.executables.CancelPremium;
 import app.commands.executables.ChangePage;
 import app.commands.executables.CreatePlaylist;
 import app.commands.executables.DeleteUser;
@@ -152,6 +154,8 @@ public final class CommandManager {
       case LOAD_RECOMMENDATIONS -> new LoadRecommendations().execute(command);
       case SUBSCRIBE -> new Subscribe().execute(command);
       case GET_NOTIFICATIONS -> new GetNotifications().execute(command);
+      case BUY_PREMIUM -> new BuyPremium().execute(command);
+      case CANCEL_PREMIUM -> new CancelPremium().execute(command);
       case DEFAULT -> null;
     };
   }

@@ -49,6 +49,9 @@ public final class AudioPlayer {
   private HashMap<Podcast, Long> podcastHistory = new HashMap<>();
   private Random random;
 
+  private boolean shouldAddBePlayed = false;
+  private long addStartTimestamp;
+
   /** Empties the player, resetting its state and clearing the loaded track. */
   public void stopPlayback() {
     if (hasLoadedTrack() && this.getLoadedTrack().getType().equals(PODCAST)) {
@@ -454,4 +457,8 @@ public final class AudioPlayer {
       this.stopPlayback();
     }
   }
+
+    public void addShouldBePlayed() {
+        shouldAddBePlayed = true;
+    }
 }

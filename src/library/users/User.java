@@ -6,6 +6,9 @@ import app.helpers.UserType;
 import app.history.History;
 import app.io.nodes.input.InputNode;
 import app.monetization.Monetization;
+import app.monetization.payment.PremiumPaymentStrategy;
+import app.monetization.subscription.PremiumHistory;
+import app.monetization.subscription.UserPremiumState;
 import app.notifications.Notification;
 import app.notifications.observer.Observer;
 import app.notifications.observer.Subject;
@@ -32,6 +35,8 @@ import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Song;
 import lombok.Getter;
 import lombok.Setter;
+
+import static app.monetization.subscription.UserPremiumState.FREE;
 
 /** Represents a User in the music player application. */
 @Getter
@@ -68,6 +73,8 @@ public final class User implements Subject, Observer {
   @JsonIgnore private List<User> subscribedUsers;
   @JsonIgnore private List<Notification> notifications;
 
+  @JsonIgnore private PremiumHistory premiumHistory;
+
   public User() {
     this.setSearchBar(new SearchBar());
     this.setAudioPlayer(new AudioPlayer());
@@ -84,6 +91,7 @@ public final class User implements Subject, Observer {
     this.setObservers(new ArrayList<>());
     this.setSubscribedUsers(new ArrayList<>());
     this.setNotifications(new ArrayList<>());
+    this.setPremiumHistory(new PremiumHistory());
     changePage(PageType.HOME_PAGE, true);
   }
 
@@ -104,6 +112,7 @@ public final class User implements Subject, Observer {
     this.setObservers(new ArrayList<>());
     this.setSubscribedUsers(new ArrayList<>());
     this.setNotifications(new ArrayList<>());
+    this.setPremiumHistory(new PremiumHistory(command.getTimestamp()));
     this.setConnectionStatus(ConnectionStatus.ONLINE);
     this.setAddOnPlatformTimestamp(command.getTimestamp());
     switch (command.getType()) {
@@ -257,5 +266,18 @@ public final class User implements Subject, Observer {
   @Override
   public void update(Notification notification) {
     getNotifications().add(notification);
+  }
+
+  public UserPremiumState getPremiumState() {
+    return getPremiumHistory().getCurrentState();
+  }
+
+  public void togglePremiumState(long currentTimestamp) {
+    if (getPremiumState() == FREE) {
+      getPremiumHistory().addState(UserPremiumState.PREMIUM, currentTimestamp);
+    } else {
+      getPremiumHistory().addState(UserPremiumState.FREE, currentTimestamp);
+      new PremiumPaymentStrategy().pay(this);
+    }
   }
 }

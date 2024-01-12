@@ -33,7 +33,7 @@ public class HostWrappedStrategy implements Executable {
 
     if (out.getResult().getTopEpisodes().size() == 0 && out.getResult().getListeners() == 0) {
       out.setResult(null);
-      out.setMessage("No data to show for user " + command.getUsername() + ".");
+      out.setMessage("No data to show for host " + command.getUsername() + ".");
     }
 
     return out;

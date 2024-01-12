@@ -25,17 +25,21 @@ public class Monetization {
     this.setMerchRevenue(new ArrayList<>());
   }
 
-  public void receivePayment(AudioEntity entity, double amount) {
-    if (getSongRevenue().containsKey(entity)) {
-      double newAmount = getSongRevenue().get(entity) + amount;
+  public void receivePayment(List<AudioEntity> paidEntities, double totalAmount) {
+    double individualSongRevenue = totalAmount / paidEntities.size();
+
+    setTotalSongRevenue(getTotalSongRevenue() + totalAmount);
+    setTotalRevenue(getTotalRevenue() + totalAmount);
+
+    for (AudioEntity entity : paidEntities) {
+      double newAmount = getSongRevenue().getOrDefault(entity, 0.0) + individualSongRevenue;
       getSongRevenue().put(entity, newAmount);
-    } else {
-      getSongRevenue().put(entity, amount);
     }
   }
+
   public void receivePayment(Merch merch) {
-	  getMerchRevenue().add(merch);
-      setTotalMerchRevenue(getTotalMerchRevenue() + merch.getPrice());
-      setTotalRevenue(getTotalRevenue() + getTotalMerchRevenue());
+    getMerchRevenue().add(merch);
+    setTotalMerchRevenue(getTotalMerchRevenue() + merch.getPrice());
+    setTotalRevenue(getTotalRevenue() + getTotalMerchRevenue());
   }
 }

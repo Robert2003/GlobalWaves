@@ -53,7 +53,8 @@ public final class AddAlbum implements Executable {
       }
     }
 
-    Notification notification = new Notification(NotificationType.NEW_ALBUM, "New Album from " + user.getUsername() + ".");
+    Notification notification =
+        new Notification(NotificationType.NEW_ALBUM, "New Album from " + user.getUsername() + ".");
     user.notifyObservers(notification);
 
     return new AddAlbumOutputNode(command, command.getUsername() + ADD_ALBUM_NO_ERROR_MESSAGE);
