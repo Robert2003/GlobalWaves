@@ -7,6 +7,7 @@ import java.util.Map;
 
 import library.entities.Merch;
 import library.entities.audio.AudioEntity;
+import library.entities.audio.audioFiles.Song;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +26,7 @@ public class Monetization {
     this.setMerchRevenue(new ArrayList<>());
   }
 
-  public void receivePayment(List<AudioEntity> paidEntities, double totalAmount) {
+  public void receivePayment(List<Song> paidEntities, double totalAmount) {
     double individualSongRevenue = totalAmount / paidEntities.size();
 
     setTotalSongRevenue(getTotalSongRevenue() + totalAmount);

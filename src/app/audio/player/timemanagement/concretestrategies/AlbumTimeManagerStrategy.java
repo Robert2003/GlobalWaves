@@ -9,6 +9,7 @@ import app.audio.player.timemanagement.TimeManagerStrategy;
 import app.history.History;
 import app.io.nodes.input.InputNode;
 import app.io.nodes.output.NextPrevOutputNode;
+import app.monetization.subscription.UserPremiumState;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audioFiles.AudioFile;
@@ -41,30 +42,6 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
    * @param timeToAdd The time to add, in seconds.
    * @return
    */
-  //  @Override
-  //  public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
-  //    Album album = getAlbumFromPlayer(audioPlayer);
-  //    History history = new History();
-  //
-  //    if (audioPlayer.getRepeatPlaylistStates() == PlayerPlaylistRepeatStates.REPEAT_CURRENT_SONG)
-  // {
-  //      Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
-  //      int beginningOfSongTime = album.getBeginningOfSongDuration(currentSong);
-  //      int currentTimeInSong = (int) (getElapsedTime() - beginningOfSongTime);
-  //      assert currentSong != null;
-  //      // Make sure the playback doesn't go over the current song and loops inside it
-  //      int repeatTimeInSong = (int) ((currentTimeInSong + timeToAdd) %
-  // currentSong.getDuration());
-  //      setElapsedTime((long) (beginningOfSongTime + repeatTimeInSong));
-  //    } else if (audioPlayer.getRepeatPlaylistStates() == PlayerPlaylistRepeatStates.REPEAT_ALL) {
-  //      setElapsedTime((getElapsedTime() + timeToAdd) % album.getDuration());
-  //    } else {
-  //      setElapsedTime(getElapsedTime() + timeToAdd);
-  //    }
-  //
-  //    return history;
-  //  }
-
   @Override
   public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
     long timeToAddCopy = timeToAdd;
@@ -111,6 +88,23 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
           if (timeToAddCopy >= audioPlayer.getAd().getLeftTimestamp()) {
             timeToAddCopy -= audioPlayer.getAd().getLeftTimestamp();
             audioPlayer.getAd().resetAd();
+
+            long remainingSongTime = getRemainingTime(audioPlayer);
+            Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+
+            if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
+              if (audioPlayer.getAdShouldBePlayed()) {
+                audioPlayer.startAd(currentTimestamp);
+              } else {
+                history.add(currentSong, currentTimestamp);
+
+                if (audioPlayer.getOwner().getPremiumState() == UserPremiumState.PREMIUM) {
+                  audioPlayer.getOwner().getHistory().getPremiumSongs().add(currentSong);
+                } else {
+                  audioPlayer.getOwner().getHistory().getFreeSongs().add(currentSong);
+                }
+              }
+            }
           } else {
             audioPlayer
                 .getAd()
@@ -131,11 +125,21 @@ public final class AlbumTimeManagerStrategy extends TimeManagerStrategy {
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
         currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
 
+        if (currentSong == null && audioPlayer.getAdShouldBePlayed()) {
+          audioPlayer.startAd(currentTimestamp);
+        }
+
         if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
           if (audioPlayer.getAdShouldBePlayed()) {
             audioPlayer.startAd(currentTimestamp);
           } else {
             history.add(currentSong, currentTimestamp);
+
+            if (audioPlayer.getOwner().getPremiumState() == UserPremiumState.PREMIUM) {
+              audioPlayer.getOwner().getHistory().getPremiumSongs().add(currentSong);
+            } else {
+              audioPlayer.getOwner().getHistory().getFreeSongs().add(currentSong);
+            }
           }
         }
       }

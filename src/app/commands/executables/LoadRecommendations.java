@@ -7,9 +7,13 @@ import app.helpers.ConnectionStatus;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import app.io.nodes.output.PlayerOutputNode;
+import app.monetization.subscription.UserPremiumState;
 import library.Library;
 import library.entities.audio.AudioEntity;
+import library.entities.audio.audioFiles.Song;
 import library.users.User;
+
+import static app.searchbar.SearchType.SONG;
 
 public class LoadRecommendations implements Executable {
   @Override
@@ -46,12 +50,17 @@ public class LoadRecommendations implements Executable {
 
     AudioEntity playingEntity =
         user.getAudioPlayer().getTimeManager().getPlayingAudioEntity(user.getAudioPlayer());
-    user.getHistory().add(playingEntity, command.getTimestamp());
+    user.getHistory().add(lastRecommendation, command.getTimestamp());
 
-    if (user.getAudioPlayer().getAdShouldBePlayed()) {
-      user.getHistory().removeLastAd();
-      user.getAudioPlayer().getAd().resetAd();
+    if (playingEntity.getType() == SONG) {
+      if (user.getPremiumState() == UserPremiumState.PREMIUM) {
+        user.getHistory().getPremiumSongs().add((Song) playingEntity);
+      } else {
+        user.getHistory().getFreeSongs().add((Song) playingEntity);
+      }
     }
+
+      user.getAudioPlayer().getAd().resetAd();
 
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
   }

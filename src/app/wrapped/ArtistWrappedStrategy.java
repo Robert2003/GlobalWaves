@@ -34,10 +34,6 @@ public class ArtistWrappedStrategy implements Executable {
     out.getResult().setTopFans(getTop5Fans(artist));
     out.getResult().setListeners(getListeners(artist));
 
-//    if (command.getTimestamp() == 13709) {
-//      System.out.println(out.getResult().getTopAlbums().get("Greatest Hits"));
-//    }
-
     if (out.getResult().getTopSongs().size() == 0
         && out.getResult().getTopAlbums().size() == 0
         && out.getResult().getTopFans().size() == 0

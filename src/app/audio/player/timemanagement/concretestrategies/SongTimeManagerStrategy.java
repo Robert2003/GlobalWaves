@@ -24,7 +24,7 @@ public final class SongTimeManagerStrategy extends TimeManagerStrategy {
   }
 
   @Override
-  public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
+  public History addTime(final AudioPlayer audioPlayer, long timeToAdd) {
     Song song = (Song) getPlayingAudioEntity(audioPlayer);
     History history = new History();
 
@@ -38,6 +38,18 @@ public final class SongTimeManagerStrategy extends TimeManagerStrategy {
         this.setElapsedTime(this.getElapsedTime() % song.getDuration());
       }
     } else {
+      if (audioPlayer.isAdBeingPlayed()) {
+        if (timeToAdd >= audioPlayer.getAd().getLeftTimestamp()) {
+          timeToAdd -= audioPlayer.getAd().getLeftTimestamp();
+          audioPlayer.getAd().resetAd();
+        } else {
+          audioPlayer
+                  .getAd()
+                  .setLeftTimestamp(audioPlayer.getAd().getLeftTimestamp() - timeToAdd);
+          return history;
+        }
+      }
+
       this.setElapsedTime(this.getElapsedTime() + timeToAdd);
       long currentTimestamp = getLastTimeUpdated() + timeToAdd;
 

@@ -3,8 +3,10 @@ package app.commands.executables;
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.monetization.subscription.UserPremiumState;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
+import library.entities.audio.audioFiles.Song;
 import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +30,18 @@ public class AdBreak implements Executable {
 
     user.getAudioPlayer().getAd().setShouldAdBePlayed(true);
     user.getAudioPlayer().getAd().setPrice(command.getPrice());
+
+    if (user.getAudioPlayer().hasLoadedMusic()) {
+      Song currentSong =
+          (Song)
+              user.getAudioPlayer().getTimeManager().getPlayingAudioEntity(user.getAudioPlayer());
+      long remainingSongTime =
+          user.getAudioPlayer().getTimeManager().getRemainingTime(user.getAudioPlayer());
+
+      if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
+        user.getAudioPlayer().startAd(command.getTimestamp());
+      }
+    }
 
     return new AdBreakOutputNode(command, "Ad inserted successfully.");
   }

@@ -38,7 +38,6 @@ public class EndProgram implements Executable {
 
     for (User artist : artists) {
       out.addRevenue(artist);
-//      System.out.println(artist.getMonetization().getSongRevenue());
     }
 
     return out;
@@ -67,9 +66,10 @@ public class EndProgram implements Executable {
 
       revenue.setRanking(ranking);
 
-      Map.Entry<AudioEntity, Double> maxEntry = null;
+      Map<String, Double> mergedSongProfits = mergeSongPorifts(artist.getMonetization().getSongRevenue());
+      Map.Entry<String, Double> maxEntry = null;
 
-      for (Map.Entry<AudioEntity, Double> entry : artist.getMonetization().getSongRevenue().entrySet()) {
+      for (Map.Entry<String, Double> entry : mergedSongProfits.entrySet()) {
         Double roundedValue = entry.getValue();
         if (maxEntry == null) {
           maxEntry = entry;
@@ -79,7 +79,7 @@ public class EndProgram implements Executable {
           if (valueCompare < 0) {
             maxEntry = entry;
           } else if (valueCompare == 0) {
-            if (maxEntry.getKey().getName().compareTo(entry.getKey().getName()) > 0) {
+            if (maxEntry.getKey().compareTo(entry.getKey()) > 0) {
               maxEntry = entry;
             }
           }
@@ -87,12 +87,22 @@ public class EndProgram implements Executable {
       }
 
       revenue.setMostProfitableSong(
-          maxEntry != null ? maxEntry.getKey().getName() : "N/A");
+          maxEntry != null ? maxEntry.getKey() : "N/A");
 
       if (!ArtistWrappedStrategy.getTop5Songs(artist).isEmpty() || revenue.getMerchRevenue() != 0) {
         getResult().put(artist.getUsername(), revenue);
         ranking++;
       }
+    }
+
+    private Map<String, Double> mergeSongPorifts(Map<AudioEntity, Double> revenues) {
+      Map<String, Double> result = new LinkedHashMap<>();
+
+      for (Map.Entry<AudioEntity, Double> entry : revenues.entrySet()) {
+        result.put(entry.getKey().getName(), result.getOrDefault(entry.getKey().getName(), 0.0) + entry.getValue());
+      }
+
+      return result;
     }
 
     @Getter

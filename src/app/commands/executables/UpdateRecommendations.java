@@ -8,9 +8,12 @@ import app.recommendations.RecommendationType;
 import app.recommendations.strategy.concrete.FansPlaylistRecommendationStrategy;
 import app.recommendations.strategy.concrete.RandomPlaylistRecommendationStrategy;
 import app.recommendations.strategy.concrete.SongRecommendationStrategy;
+import app.searchbar.SearchType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.entities.audio.AudioEntity;
+import library.entities.audio.audio.collections.Playlist;
+import library.entities.audio.audioFiles.Song;
 import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +32,7 @@ public class UpdateRecommendations implements Executable {
           command, THE_USERNAME + command.getUsername() + DOESNT_EXIST);
     }
 
+
     if (user.getUserType() != UserType.NORMAL) {
       return new UpdateRecommendationsOutputNode(
           command, command.getUsername() + NOT_NORMAL_USER_ERROR_MESSAGE);
@@ -45,7 +49,30 @@ public class UpdateRecommendations implements Executable {
 
     if (recommendation == null) {
       return new UpdateRecommendationsOutputNode(
-          command, "No new recommendations were found.");
+          command, "No new recommendations were found");
+    }
+
+    if (user.getRecommendations().hasRecommendations()) {
+      switch (type) {
+        case RANDOM_SONG:
+          if (user.getRecommendations().getSongRecommendations().contains(recommendation)) {
+            return new UpdateRecommendationsOutputNode(
+                command, "No new recommendations were found");
+          }
+          break;
+        case RANDOM_PLAYLIST:
+        case FANS_PLAYLIST:
+          for (Playlist playlist : user.getRecommendations().getPlaylistRecommendations()) {
+            if (playlist.getSongs().containsAll(((Playlist) recommendation).getSongs())) {
+              return new UpdateRecommendationsOutputNode(
+                      command, "No new recommendations were found");
+            }
+          }
+          if (user.getRecommendations().getLastRecommendation().getType() == SearchType.PLAYLIST && ((Playlist)user.getRecommendations().getLastRecommendation()).getSongs().containsAll(((Playlist) recommendation).getSongs())) {
+            return new UpdateRecommendationsOutputNode(
+                command, "No new recommendations were found");
+          }
+      }
     }
 
     user.getRecommendations().add(recommendation);

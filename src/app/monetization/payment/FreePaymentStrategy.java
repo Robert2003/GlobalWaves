@@ -14,35 +14,30 @@ import static app.searchbar.SearchType.SONG;
 public class FreePaymentStrategy implements PaymentStrategy{
 	@Override
 	public void pay(User user, double price) {
-		long lastAdTimestamp = user.getHistory().getLastAdTimestamp();
-		if (lastAdTimestamp == -1) {
-			lastAdTimestamp = user.getPremiumHistory().getLastFreeTimestamp();
-		}
-		if (lastAdTimestamp == -1) {
-			return;
-		}
+		List<Song> freeSongs = user.getHistory().getFreeSongs();
 
-		int lastPayIndex = user.getHistory().getIndexForTimestamp(lastAdTimestamp);
-		if (lastPayIndex == -1) {
-			lastPayIndex = 0;
-		}
-		int currentIndex = user.getHistory().getOrderHistoryMap().size() - 1;
-		int songsListened = currentIndex - lastPayIndex + 1;
+		List<String> artists = getArtists(freeSongs);
 
-		Map<User, Integer> listenedArtists = user.getHistory().getListenedArtistsBetween(lastPayIndex, currentIndex);
-
-		for (Map.Entry<User, Integer> entry : listenedArtists.entrySet()) {
-			User artist = entry.getKey();
-			int songsFromArtist = entry.getValue();
-
-			double value = price * songsFromArtist / songsListened;
-			List<AudioEntity> entitiesToPay = getEntitiesToPayForArtist(user, artist.getUsername());
+		for (String artistName : artists) {
+			User artist = Library.getInstance().getUserByName(artistName);
+			List<Song> entitiesToPay = freeSongs.stream().filter(song -> song.getArtist().equals(artistName)).toList();
+			double value = price * entitiesToPay.size() / freeSongs.size();
 
 			artist.getMonetization().receivePayment(entitiesToPay, value);
 		}
 
-//		System.out.println();
+		user.getHistory().getFreeSongs().clear();
 
+	}
+
+	private List<String> getArtists(List<Song> entities) {
+		List<String> artists = new ArrayList<>();
+		for (Song song : entities) {
+			if (!artists.contains(song.getArtist())) {
+				artists.add(song.getArtist());
+			}
+		}
+		return artists;
 	}
 
 	@Override

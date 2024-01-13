@@ -21,11 +21,15 @@ public class History {
   private Map<AudioEntity, Integer> historyMap;
   private List<OrderedHistory> orderHistoryMap;
   private List<OrderedHistory> adsHistory;
+  private List<Song> premiumSongs;
+  private List<Song> freeSongs;
 
   public History() {
     this.setHistoryMap(new LinkedHashMap<>());
     this.setOrderHistoryMap(new ArrayList<>());
     this.setAdsHistory(new ArrayList<>());
+    setFreeSongs(new ArrayList<>());
+    setPremiumSongs(new ArrayList<>());
   }
 
   public void add(AudioEntity entity, long timestamp) {
@@ -115,6 +119,6 @@ public class History {
     if (getAdsHistory().isEmpty()) {
       return;
     }
-    getAdsHistory().remove(getAdsHistory().size() - 1);
+//    getAdsHistory().remove(getAdsHistory().size() - 1);
   }
 }

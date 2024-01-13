@@ -4,6 +4,7 @@ import static app.searchbar.SearchType.ALBUM;
 import static app.searchbar.SearchType.NOT_INITIALIZED;
 import static app.searchbar.SearchType.PLAYLIST;
 import static app.searchbar.SearchType.PODCAST;
+import static app.searchbar.SearchType.SONG;
 
 import app.Constants;
 import app.audio.player.states.PlayerPlayPauseStates;
@@ -24,6 +25,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
+import app.monetization.subscription.UserPremiumState;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
@@ -111,12 +114,15 @@ public final class AudioPlayer {
     AudioEntity playingEntity = getTimeManager().getPlayingAudioEntity(this);
     user.getHistory().add(playingEntity, command.getTimestamp());
 
-    if (user.getAudioPlayer().getAdShouldBePlayed()) {
-//      if (!user.getAudioPlayer().isAdBeingPlayed()) {
-//        user.getHistory().removeLastAd();
-//      }
-      user.getAudioPlayer().getAd().resetAd();
+    if (playingEntity.getType() == SONG) {
+      if (user.getPremiumState() == UserPremiumState.PREMIUM) {
+        user.getHistory().getPremiumSongs().add((Song) playingEntity);
+      } else {
+        user.getHistory().getFreeSongs().add((Song) playingEntity);
+      }
     }
+
+    user.getAudioPlayer().getAd().resetAd();
 
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
   }
@@ -490,22 +496,10 @@ public final class AudioPlayer {
   public void startAd(long timestamp) {
     this.getAd().setShouldAdBePlayed(false);
     this.getAd().setAdPlaying(true);
-
-//    this.getTimeManager().setElapsedTime(Math.max(0, getTimeManager().getElapsedTime() - 10));
     this.getAd().setAdStartTimestamp(timestamp);
 
     getOwner().getHistory().add(Library.getInstance().getSongs().get(0), timestamp);
     new FreePaymentStrategy().pay(getOwner(), this.getAd().getPrice());
-  }
-
-  public long stopAdIfNecessary(long timestamp) {
-    if (this.getAd().isAdPlaying() && timestamp - this.getAd().getAdStartTimestamp() >= 10) {
-      this.getAd().setAdPlaying(false);
-//      this.getTimeManager().setElapsedTime(Math.max(0, getTimeManager().getElapsedTime() - 10));
-      return timestamp - this.getAd().getAdStartTimestamp() + 10;
-    }
-
-    return 9999999;
   }
 
   public boolean isAdBeingPlayed() {

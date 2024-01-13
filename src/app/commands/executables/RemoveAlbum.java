@@ -52,6 +52,7 @@ public final class RemoveAlbum implements Executable {
     for (Song song : album.getSongs()) {
       Library.getInstance().getSongs().remove(song);
     }
+
     Library.getInstance().getAlbums().remove(album);
 
     return new RemoveAlbumOutputNode(

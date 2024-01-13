@@ -9,6 +9,7 @@ import app.audio.player.timemanagement.TimeManagerStrategy;
 import app.history.History;
 import app.io.nodes.input.InputNode;
 import app.io.nodes.output.NextPrevOutputNode;
+import app.monetization.subscription.UserPremiumState;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audioFiles.Song;
@@ -104,12 +105,22 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
         Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
         timeToAddCopy -= timeToFinish;
 
+        if (currentSong == null && audioPlayer.getAdShouldBePlayed()) {
+          audioPlayer.startAd(currentTimestamp);
+        }
+
         currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
         if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
           if (audioPlayer.getAdShouldBePlayed()) {
             audioPlayer.startAd(currentTimestamp);
           } else {
             history.add(currentSong, currentTimestamp);
+
+            if (audioPlayer.getOwner().getPremiumState() == UserPremiumState.PREMIUM) {
+              history.getPremiumSongs().add(currentSong);
+            } else {
+              history.getFreeSongs().add(currentSong);
+            }
           }
         }
       }

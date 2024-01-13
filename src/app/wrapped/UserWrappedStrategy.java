@@ -15,6 +15,7 @@ import library.users.User;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static app.searchbar.SearchType.NOT_INITIALIZED;
@@ -32,21 +33,6 @@ public class UserWrappedStrategy implements Executable {
 		out.getResult().setTopAlbums(getTop5Albums(user));
 		out.getResult().setTopGenres(getTop5Genres(user));
 		out.getResult().setTopArtists(getTop5Artists(user));
-
-
-//		if (command.getTimestamp() == 12102) {
-//            System.out.println(out.getResult().getTopArtists().get("Fleetwood Mac"));
-//			int cnt = 0;
-//			for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
-//				if (order.getEntity().getType() == SONG) {
-//					Song song = (Song) order.getEntity();
-//					if (song.getArtist().equals("Fleetwood Mac")) {
-//						cnt++;
-//					}
-//				}
-//			}
-//            System.out.println(cnt);
-//		}
 
 		if (out.getResult().getTopSongs().isEmpty()
 				&& out.getResult().getTopAlbums().isEmpty()
@@ -75,21 +61,6 @@ public class UserWrappedStrategy implements Executable {
 				.collect(
 						Collectors.toMap(
 								Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-
-//		return user.getHistory().getHistoryMap().entrySet().stream()
-//				.filter(entry -> entry.getKey().getType() == SONG)
-//				.sorted(
-//						Map.Entry.<AudioEntity, Integer>comparingByValue().reversed()
-//								.thenComparing(entry -> entry.getKey().getName()).reversed()
-//								.reversed())
-//				.limit(Constants.PRINT_LIMIT)
-//				.collect(
-//						Collectors.toMap(
-//								entry -> entry.getKey().getName(),
-//								Map.Entry::getValue,
-//								(e1, e2) -> e1,
-//								LinkedHashMap::new));
 	}
 
 	public Map<String, Integer> getTop5Episodes(final User user) {

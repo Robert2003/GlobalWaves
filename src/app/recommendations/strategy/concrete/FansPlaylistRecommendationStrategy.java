@@ -48,6 +48,10 @@ public class FansPlaylistRecommendationStrategy implements RecommendationStrateg
       appendTop5SongsForUser(playlistSongs, fanUser);
     }
 
+    if (playlistSongs.isEmpty()) {
+      return null;
+    }
+
     String playlistName = artist.getUsername() + " Fan Club recommendations";
     return new Playlist(playlistName, playlistSongs, user);
   }
