@@ -38,14 +38,6 @@ public class History {
       return;
     }
 
-    if (entity.getType() == SONG && timestamp < 20668) {
-      Song song = (Song) entity;
-
-      if (song.getAlbum().equals("Greatest Hits")) {
-        System.out.println("DA");
-      }
-    }
-
     if (getHistoryMap().containsKey(entity)) {
       int newCount = getHistoryMap().get(entity) + 1;
       getHistoryMap().put(entity, newCount);

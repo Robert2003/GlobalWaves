@@ -56,7 +56,8 @@ public final class SongSearchStrategy implements Searchable {
       return false;
     }
 
-    return song.getName().toLowerCase().indexOf(query.getName().toLowerCase()) == 0;
+//    return song.getName().toLowerCase().indexOf(query.getName().toLowerCase()) == 0;
+    return song.getName().regionMatches(true, 0, query.getName(), 0, query.getName().length());
   }
 
   private boolean searchAlbum(final Song song, final Filter query) {

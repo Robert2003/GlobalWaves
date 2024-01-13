@@ -37,7 +37,7 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
    * </ul>
    *
    * @param audioPlayer The audio player instance.
-   * @param timeToAdd   The time to add, in seconds.
+   * @param timeToAdd The time to add, in seconds.
    * @return
    */
   @Override
@@ -79,13 +79,25 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
       }
     } else {
       while (timeToAddCopy > 0) {
+        if (audioPlayer.isAdBeingPlayed()) {
+          if (timeToAddCopy >= audioPlayer.getAd().getLeftTimestamp()) {
+            timeToAddCopy -= audioPlayer.getAd().getLeftTimestamp();
+            audioPlayer.getAd().resetAd();
+            continue;
+          } else {
+            audioPlayer
+                .getAd()
+                .setLeftTimestamp(audioPlayer.getAd().getLeftTimestamp() - timeToAddCopy);
+            break;
+          }
+        }
+
         long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
-        if (timeToFinish <= 0)
+        if (timeToFinish <= 0) {
           timeToFinish = timeToAddCopy;
+        }
 
         setElapsedTime(getElapsedTime() + timeToFinish);
-
-        long timeSinceAdEnded = audioPlayer.stopAdIfNecessary(getElapsedTime());
 
         long remainingSongTime = getRemainingTime(audioPlayer);
 
@@ -94,19 +106,12 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
 
         currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
         if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
-          history.add(currentSong, currentTimestamp);
-
           if (audioPlayer.getAdShouldBePlayed()) {
             audioPlayer.startAd(currentTimestamp);
+          } else {
+            history.add(currentSong, currentTimestamp);
           }
         }
-//        else if (currentSong != null && currentSong.getDuration() - getRemainingTime(audioPlayer) == timeSinceAdEnded && !audioPlayer.isAdBeingPlayed()) {
-//          history.add(currentSong, currentTimestamp);
-//
-//          if (audioPlayer.getAdShouldBePlayed()) {
-//            audioPlayer.startAd(currentTimestamp);
-//          }
-//        }
       }
     }
 

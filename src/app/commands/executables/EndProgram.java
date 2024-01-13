@@ -38,6 +38,7 @@ public class EndProgram implements Executable {
 
     for (User artist : artists) {
       out.addRevenue(artist);
+//      System.out.println(artist.getMonetization().getSongRevenue());
     }
 
     return out;

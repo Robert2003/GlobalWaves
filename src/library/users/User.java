@@ -33,7 +33,9 @@ import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Song;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import static app.monetization.subscription.UserPremiumState.FREE;

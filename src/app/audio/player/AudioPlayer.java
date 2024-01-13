@@ -112,7 +112,9 @@ public final class AudioPlayer {
     user.getHistory().add(playingEntity, command.getTimestamp());
 
     if (user.getAudioPlayer().getAdShouldBePlayed()) {
-      //      user.getHistory().removeLastAd();
+//      if (!user.getAudioPlayer().isAdBeingPlayed()) {
+//        user.getHistory().removeLastAd();
+//      }
       user.getAudioPlayer().getAd().resetAd();
     }
 
@@ -499,7 +501,7 @@ public final class AudioPlayer {
   public long stopAdIfNecessary(long timestamp) {
     if (this.getAd().isAdPlaying() && timestamp - this.getAd().getAdStartTimestamp() >= 10) {
       this.getAd().setAdPlaying(false);
-      this.getTimeManager().setElapsedTime(Math.max(0, getTimeManager().getElapsedTime() - 9));
+//      this.getTimeManager().setElapsedTime(Math.max(0, getTimeManager().getElapsedTime() - 10));
       return timestamp - this.getAd().getAdStartTimestamp() + 10;
     }
 

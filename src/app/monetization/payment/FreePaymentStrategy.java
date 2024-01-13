@@ -18,10 +18,6 @@ public class FreePaymentStrategy implements PaymentStrategy{
 		if (lastAdTimestamp == -1) {
 			lastAdTimestamp = user.getPremiumHistory().getLastFreeTimestamp();
 		}
-
-//        System.out.println(user.getUsername());
-//        System.out.println(lastAdTimestamp + " - " + price);
-
 		if (lastAdTimestamp == -1) {
 			return;
 		}
@@ -33,8 +29,6 @@ public class FreePaymentStrategy implements PaymentStrategy{
 		int currentIndex = user.getHistory().getOrderHistoryMap().size() - 1;
 		int songsListened = currentIndex - lastPayIndex + 1;
 
-//        System.out.println("Last pay index: " + lastPayIndex + " - Current index: " + currentIndex);
-
 		Map<User, Integer> listenedArtists = user.getHistory().getListenedArtistsBetween(lastPayIndex, currentIndex);
 
 		for (Map.Entry<User, Integer> entry : listenedArtists.entrySet()) {
@@ -42,15 +36,7 @@ public class FreePaymentStrategy implements PaymentStrategy{
 			int songsFromArtist = entry.getValue();
 
 			double value = price * songsFromArtist / songsListened;
-//            System.out.println("Value to pay for " + artist.getUsername() + ": " + value);
-
 			List<AudioEntity> entitiesToPay = getEntitiesToPayForArtist(user, artist.getUsername());
-
-//			if (user.getUsername().equals("irene33")) {
-//				for (AudioEntity entity : entitiesToPay) {
-//					System.out.println(user.getUsername() + " paid " + value / entitiesToPay.size() + " for " + entity.getName() + " by " + artist.getUsername());
-//				}
-//			}
 
 			artist.getMonetization().receivePayment(entitiesToPay, value);
 		}

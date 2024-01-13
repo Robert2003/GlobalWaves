@@ -6,11 +6,15 @@ import static app.Constants.NO_ALBUM_ERROR_MESSAGE;
 import static app.Constants.REMOVE_ALBUM_ERROR_MESSAGE;
 import static app.Constants.REMOVE_ALBUM_NO_ERROR_MESSAGE;
 import static app.Constants.THE_USERNAME;
+import static app.searchbar.SearchType.ALBUM;
+import static app.searchbar.SearchType.PLAYLIST;
+import static app.searchbar.SearchType.SONG;
 
 import app.commands.Executable;
 import app.helpers.UserType;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
+import app.searchbar.SearchType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.entities.audio.audio.collections.Album;
@@ -39,13 +43,17 @@ public final class RemoveAlbum implements Executable {
           command, command.getUsername() + NO_ALBUM_ERROR_MESSAGE);
     }
 
-    Album album = Library.getInstance().getAlbumByName(command.getName());
+    Album album = Library.getInstance().getAlbumByName(command.getName(), command.getUsername());
     if (isSomeoneInteracting(album)) {
       return new RemoveAlbumOutputNode(
           command, command.getUsername() + REMOVE_ALBUM_ERROR_MESSAGE);
     }
 
+    for (Song song : album.getSongs()) {
+      Library.getInstance().getSongs().remove(song);
+    }
     Library.getInstance().getAlbums().remove(album);
+
     return new RemoveAlbumOutputNode(
         command, command.getUsername() + REMOVE_ALBUM_NO_ERROR_MESSAGE);
   }
@@ -62,10 +70,35 @@ public final class RemoveAlbum implements Executable {
 
   private boolean isSomeoneInteracting(final Album albumToBeDeleted) {
     // Parse all users and check if any of them has loaded the albumToBeDeleted
-    for (User user : Library.getInstance().getUsers()) {
+    for (User user : Library.getInstance().getNormalUsers()) {
       if (user.getAudioPlayer().hasLoadedTrack()
           && user.getAudioPlayer().getLoadedTrack().equals(albumToBeDeleted)) {
         return true;
+      }
+
+      if (user.getAudioPlayer().hasLoadedTrack() && user.getAudioPlayer().getLoadedTrack().getType() == PLAYLIST) {
+        Playlist playlist = (Playlist) user.getAudioPlayer().getLoadedTrack();
+        for (Song song : playlist.getSongs()) {
+          if (song.getAlbum().equals(albumToBeDeleted.getName())) {
+            return true;
+          }
+        }
+      }
+
+      if (user.getAudioPlayer().hasLoadedTrack() && user.getAudioPlayer().getLoadedTrack().getType() == ALBUM) {
+        Album album = (Album) user.getAudioPlayer().getLoadedTrack();
+        for (Song song : album.getSongs()) {
+          if (song.getAlbum().equals(albumToBeDeleted.getName())) {
+            return true;
+          }
+        }
+      }
+
+      if (user.getAudioPlayer().hasLoadedTrack() && user.getAudioPlayer().getLoadedTrack().getType() == SONG) {
+        Song song = (Song) user.getAudioPlayer().getLoadedTrack();
+        if (song.getAlbum().equals(albumToBeDeleted.getName())) {
+          return true;
+        }
       }
     }
 

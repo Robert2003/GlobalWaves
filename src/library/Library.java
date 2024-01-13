@@ -116,6 +116,15 @@ public final class Library {
     return null;
   }
 
+  public Album getAlbumByName(final String name, final String artistName) {
+    for (Album album : getAlbums()) {
+      if (album.getName().equals(name) && album.getOwner().equals(artistName)) {
+        return album;
+      }
+    }
+    return null;
+  }
+
   /**
    * Retrieves a Podcast object from the library by its name. This method iterates over all the
    * podcasts in the library and returns the first one that matches the provided name. If no podcast
