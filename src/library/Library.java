@@ -100,23 +100,15 @@ public final class Library {
   }
 
   /**
-   * Retrieves an Album object from the library by its name. This method iterates over all the
-   * albums in the library and returns the first one that matches the provided name. If no album
-   * with the provided name is found, the method returns null.
+   * Retrieves an Album object from the library by its name and artist. This method iterates over
+   * all the albums in the library and returns the first one that matches the provided name and
+   * artist. If no album with the provided name and artist is found, the method returns null.
    *
    * @param name The name of the album to search for.
-   * @return The Album object with the specified name, or null if not found.
+   * @param artistName The name of the artist of the album to search for.
+   * @return The Album object with the specified name and artist, or null if not found.
    */
-  public Album getAlbumByName(final String name) {
-    for (Album album : getAlbums()) {
-      if (album.getName().equals(name)) {
-        return album;
-      }
-    }
-    return null;
-  }
-
-  public Album getAlbumByName(final String name, final String artistName) {
+  public Album getAlbumByNameAndArtist(final String name, final String artistName) {
     for (Album album : getAlbums()) {
       if (album.getName().equals(name) && album.getOwner().equals(artistName)) {
         return album;
@@ -142,15 +134,21 @@ public final class Library {
     return null;
   }
 
+  /**
+   * Retrieves a list of Podcast objects owned by a specific user.
+   *
+   * @param username The username of the owner for whom the podcasts are to be retrieved.
+   * @return A list of Podcast objects owned by the specified user.
+   */
   public List<Podcast> getPodcastsByOwner(final String username) {
-    List<Podcast> podcasts = new ArrayList<>();
+    List<Podcast> ownedPodcasts = new ArrayList<>();
 
     for (Podcast podcast : getPodcasts()) {
       if (podcast.getOwner().equals(username)) {
-        podcasts.add(podcast);
+        ownedPodcasts.add(podcast);
       }
     }
-    return podcasts;
+    return ownedPodcasts;
   }
 
   /** Sets the object type for each song, podcast, and playlist in the library. */
@@ -199,15 +197,5 @@ public final class Library {
    */
   public List<User> getArtists() {
     return getUsers().stream().filter(user -> user.getUserType() == UserType.ARTIST).toList();
-  }
-
-  /**
-   * Retrieves a list of all hosts in the library. This method filters the list of all users and
-   * returns a new list containing only the users whose UserType is HOST.
-   *
-   * @return A List of User objects representing all hosts in the library.
-   */
-  public List<User> getHosts() {
-    return getUsers().stream().filter(user -> user.getUserType() == UserType.HOST).toList();
   }
 }

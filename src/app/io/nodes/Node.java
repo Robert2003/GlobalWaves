@@ -16,7 +16,7 @@ public class Node {
   public Node() {
   }
 
-  public Node(InputNode command) {
+  public Node(final InputNode command) {
     this.setCommand(command.getCommand());
     this.setTimestamp(command.getTimestamp());
   }

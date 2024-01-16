@@ -1,37 +1,49 @@
 package app.recommendations;
 
+import java.util.ArrayList;
+import java.util.List;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audioFiles.Song;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Setter
-public class Recommendations {
-	private List<Song> songRecommendations;
-	private List<Playlist> playlistRecommendations;
+public final class Recommendations {
+  private List<Song> songRecommendations;
+  private List<Playlist> playlistRecommendations;
 
-	private AudioEntity lastRecommendation;
+  private AudioEntity lastRecommendation;
 
-	public Recommendations() {
-		setSongRecommendations(new ArrayList<>());
-		setPlaylistRecommendations(new ArrayList<>());
-	}
+  public Recommendations() {
+    setSongRecommendations(new ArrayList<>());
+    setPlaylistRecommendations(new ArrayList<>());
+  }
 
-	public boolean hasRecommendations() {
-		return !songRecommendations.isEmpty() || !playlistRecommendations.isEmpty();
-	}
+  /**
+   * Checks if there are any song or playlist recommendations.
+   *
+   * @return True if there are recommendations, false otherwise.
+   */
+  public boolean hasRecommendations() {
+    return !songRecommendations.isEmpty() || !playlistRecommendations.isEmpty();
+  }
 
-	public void add(AudioEntity audioEntity) {
-		switch (audioEntity.getType()) {
-			case SONG -> getSongRecommendations().add((Song) audioEntity);
-			case PLAYLIST -> getPlaylistRecommendations().add((Playlist) audioEntity);
-		}
+  /**
+   * Adds an audio entity to the appropriate list of recommendations.
+   *
+   * @param audioEntity The audio entity to be added.
+   */
+  public void add(final AudioEntity audioEntity) {
+    switch (audioEntity.getType()) {
+      case SONG -> getSongRecommendations().add((Song) audioEntity);
+      case PLAYLIST -> getPlaylistRecommendations().add((Playlist) audioEntity);
+      default -> {
+        return;
+      }
+    }
 
-		lastRecommendation = audioEntity;
-	}
+    lastRecommendation = audioEntity;
+  }
 }

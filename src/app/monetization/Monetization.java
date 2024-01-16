@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import library.entities.Merch;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
@@ -13,7 +12,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Monetization {
+public final class Monetization {
   private Map<AudioEntity, Double> songRevenue;
   private List<Merch> merchRevenue;
 
@@ -26,7 +25,17 @@ public class Monetization {
     this.setMerchRevenue(new ArrayList<>());
   }
 
-  public void receivePayment(List<Song> paidEntities, double totalAmount) {
+  /**
+   * This method is used to distribute the total payment received among the songs that were paid
+   * for. It first calculates the individual revenue for each song by dividing the total amount by
+   * the number of songs. It then increments the total song revenue and the total revenue by the
+   * total amount. Finally, it iterates over the paid songs, and for each song, it increments its
+   * revenue by the individual song revenue.
+   *
+   * @param paidEntities The list of songs that were paid for.
+   * @param totalAmount The total amount of payment received.
+   */
+  public void receivePayment(final List<Song> paidEntities, final double totalAmount) {
     double individualSongRevenue = totalAmount / paidEntities.size();
 
     setTotalSongRevenue(getTotalSongRevenue() + totalAmount);
@@ -38,7 +47,14 @@ public class Monetization {
     }
   }
 
-  public void receivePayment(Merch merch) {
+  /**
+   * This method is used to process the payment received for a piece of merchandise. It first adds
+   * the merchandise to the merchandise revenue list. It then increments the total merchandise
+   * revenue and the total revenue by the price of the merchandise.
+   *
+   * @param merch The merchandise that was paid for.
+   */
+  public void receivePayment(final Merch merch) {
     getMerchRevenue().add(merch);
     setTotalMerchRevenue(getTotalMerchRevenue() + merch.getPrice());
     setTotalRevenue(getTotalRevenue() + getTotalMerchRevenue());

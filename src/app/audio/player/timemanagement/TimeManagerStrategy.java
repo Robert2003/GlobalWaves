@@ -46,7 +46,7 @@ public abstract class TimeManagerStrategy {
    * Adds the specified time to the current elapsed time of the audio player.
    *
    * @param audioPlayer The audio player instance.
-   * @param timeToAdd   The time to add, in seconds.
+   * @param timeToAdd The time to add, in seconds.
    * @return
    */
   public abstract History addTime(AudioPlayer audioPlayer, long timeToAdd);
@@ -67,8 +67,8 @@ public abstract class TimeManagerStrategy {
    * (song/episode) from the audio player.
    *
    * @param player The audio player from which the current playing audio entity is retrieved.
-   * @return The currently playing {@link library.entities.audio.audioFiles.AudioFile AudioFile},
-   *      or null if none is playing.
+   * @return The currently playing {@link library.entities.audio.audioFiles.AudioFile AudioFile}, or
+   *     null if none is playing.
    */
   public abstract AudioEntity getPlayingAudioEntity(AudioPlayer player);
 
@@ -83,9 +83,9 @@ public abstract class TimeManagerStrategy {
    *
    * @param audioPlayer The AudioPlayer instance managing the playlist.
    * @param command The InputNode command that triggered this action.
-   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the action's result,
-   *     including a message indicating the successful move to the next track or an error message if
-   *     no track is loaded.
+   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the
+   *     action's result, including a message indicating the successful move to the next track or an
+   *     error message if no track is loaded.
    */
   public NextPrevOutputNode next(final AudioPlayer audioPlayer, final InputNode command) {
     if (!audioPlayer.hasLoadedTrack()) {
@@ -121,9 +121,9 @@ public abstract class TimeManagerStrategy {
    *
    * @param player The AudioPlayer instance managing the playlist.
    * @param command The InputNode command that triggered this action.
-   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the action's result,
-   *     including a message indicating the successful move to the previous track or an error
-   *     message if no track is loaded.
+   * @return A {@link app.io.nodes.output.NextPrevOutputNode} containing information about the
+   *     action's result, including a message indicating the successful move to the previous track
+   *     or an error message if no track is loaded.
    */
   public abstract NextPrevOutputNode prev(AudioPlayer player, InputNode command);
 
@@ -135,7 +135,8 @@ public abstract class TimeManagerStrategy {
    * </b> Moves the playback 90 seconds forward in a podcast.
    *
    * @param command The input command for moving forward.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the forward action.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the forward
+   *     action.
    */
   public PlayerOutputNode forward(final AudioPlayer player, final InputNode command) {
     Podcast podcast = (Podcast) player.getLoadedTrack();
@@ -161,7 +162,8 @@ public abstract class TimeManagerStrategy {
    * </b> Moves the playback 90 seconds backward in a podcast.
    *
    * @param command The input command for moving backward.
-   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the backward action.
+   * @return A {@link app.io.nodes.output.PlayerOutputNode} indicating the result of the backward
+   *     action.
    */
   public PlayerOutputNode backward(final AudioPlayer player, final InputNode command) {
     if (!player.hasLoadedTrack()) {

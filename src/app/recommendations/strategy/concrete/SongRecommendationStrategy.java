@@ -12,38 +12,38 @@ import library.users.User;
 import java.util.List;
 import java.util.Random;
 
-public class SongRecommendationStrategy implements RecommendationStrategy {
-	@Override
-	public AudioEntity getRecommendation(User user) {
-		Random random;
-		AudioPlayer player = user.getAudioPlayer();
-		AudioEntity audioEntity = player.getTimeManager().getPlayingAudioEntity(player);
+public final class SongRecommendationStrategy implements RecommendationStrategy {
+  @Override
+  public AudioEntity getRecommendation(final User user) {
+    Random random;
+    AudioPlayer player = user.getAudioPlayer();
+    AudioEntity audioEntity = player.getTimeManager().getPlayingAudioEntity(player);
 
-		if (audioEntity == null && audioEntity.getType() != SearchType.SONG) {
-			return null;
-		}
+    if (audioEntity == null && audioEntity.getType() != SearchType.SONG) {
+      return null;
+    }
 
-		Song playingSong = (Song) audioEntity;
+    Song playingSong = (Song) audioEntity;
 
-		int songDuration = playingSong.getDuration();
-		long remainingTime = player.getTimeManager().getRemainingTime(player);
-		int playedTime = songDuration - (int) remainingTime;
+    int songDuration = playingSong.getDuration();
+    long remainingTime = player.getTimeManager().getRemainingTime(player);
+    int playedTime = songDuration - (int) remainingTime;
 
-		if (playedTime < Constants.RECOMMENDATION_TIME) {
-			return null;
-		}
+    if (playedTime < Constants.RECOMMENDATION_TIME) {
+      return null;
+    }
 
-		random = new Random(playedTime);
+    random = new Random(playedTime);
 
-		List<Song> sameGenreSongs =
-				Library.getInstance().getSongs().stream()
-						.filter(song -> song.getGenre().equals(playingSong.getGenre()))
-						.toList();
+    List<Song> sameGenreSongs =
+        Library.getInstance().getSongs().stream()
+            .filter(song -> song.getGenre().equals(playingSong.getGenre()))
+            .toList();
 
-		if (sameGenreSongs.isEmpty()) {
-			return null;
-		}
+    if (sameGenreSongs.isEmpty()) {
+      return null;
+    }
 
-		return sameGenreSongs.get(random.nextInt(sameGenreSongs.size()));
-	}
+    return sameGenreSongs.get(random.nextInt(sameGenreSongs.size()));
+  }
 }

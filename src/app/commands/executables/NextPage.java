@@ -1,6 +1,5 @@
 package app.commands.executables;
 
-import app.Constants;
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
@@ -10,9 +9,9 @@ import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-public class NextPage implements Executable {
+public final class NextPage implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = library.Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {

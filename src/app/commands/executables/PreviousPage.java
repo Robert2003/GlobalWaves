@@ -9,9 +9,9 @@ import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PreviousPage implements Executable {
+public final class PreviousPage implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = library.Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {

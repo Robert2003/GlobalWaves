@@ -42,10 +42,8 @@ public final class Song extends AudioFile {
       return false;
     }
     Song song = (Song) o;
-    return
-        Objects.equals(album, song.album) &&
-        Objects.equals(getName(), song.getName())
-//        && Objects.equals(lyrics, song.lyrics)
+    return Objects.equals(album, song.album)
+        && Objects.equals(getName(), song.getName())
         && Objects.equals(genre, song.genre)
         && Objects.equals(releaseYear, song.releaseYear)
         && Objects.equals(artist, song.artist);
@@ -53,8 +51,7 @@ public final class Song extends AudioFile {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        super.hashCode());
+    return Objects.hash(super.hashCode());
   }
 
   @Override

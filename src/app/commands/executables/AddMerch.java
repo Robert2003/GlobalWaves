@@ -44,7 +44,9 @@ public final class AddMerch implements Executable {
     Merch merch = new Merch(command);
     user.getMerch().add(merch);
 
-    Notification notification = new Notification(NotificationType.NEW_MERCHANDISE, "New Merchandise from " + user.getUsername() + ".");
+    Notification notification =
+        new Notification(
+            NotificationType.NEW_MERCHANDISE, "New Merchandise from " + user.getUsername() + ".");
     user.notifyObservers(notification);
 
     return new AddMerchOutputNode(

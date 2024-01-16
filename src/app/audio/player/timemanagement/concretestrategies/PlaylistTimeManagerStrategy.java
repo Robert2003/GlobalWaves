@@ -43,87 +43,14 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
    */
   @Override
   public History addTime(final AudioPlayer audioPlayer, final long timeToAdd) {
-    long timeToAddCopy = timeToAdd;
-    long currentTimestamp = timeToAdd + getLastTimeUpdated();
-
-    Playlist playlist = getPlaylistFromPlayer(audioPlayer);
     History history = new History();
 
     if (audioPlayer.getRepeatPlaylistStates() == PlayerPlaylistRepeatStates.REPEAT_CURRENT_SONG) {
-      Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
-      int beginningOfSongTime = playlist.getBeginningOfSongDuration(currentSong);
-      int currentTimeInSong = (int) (getElapsedTime() - beginningOfSongTime);
-      assert currentSong != null;
-
-      int numberOfLoops = (int) ((currentTimeInSong + timeToAdd) / currentSong.getDuration());
-      while (numberOfLoops != 0) {
-        history.add(currentSong, currentTimestamp);
-        numberOfLoops--;
-      }
-
-      // Make sure the playback doesn't go over the current song and loops inside it
-      int repeatTimeInSong = (int) ((currentTimeInSong + timeToAdd) % currentSong.getDuration());
-      setElapsedTime((long) (beginningOfSongTime + repeatTimeInSong));
+      repeatCurrentSong(audioPlayer, timeToAdd, history);
     } else if (audioPlayer.getRepeatPlaylistStates() == PlayerPlaylistRepeatStates.REPEAT_ALL) {
-      while (timeToAddCopy > 0) {
-        long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
-
-        long timeToCheck = getRemainingTime(audioPlayer);
-        setElapsedTime((getElapsedTime() + timeToFinish) % playlist.getDuration());
-
-        if (timeToFinish >= timeToCheck) {
-          Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
-          history.add(currentSong, currentTimestamp);
-        }
-
-        timeToAddCopy -= timeToFinish;
-      }
+      repeatAll(audioPlayer, timeToAdd, history);
     } else {
-      while (timeToAddCopy > 0) {
-        if (audioPlayer.isAdBeingPlayed()) {
-          if (timeToAddCopy >= audioPlayer.getAd().getLeftTimestamp()) {
-            timeToAddCopy -= audioPlayer.getAd().getLeftTimestamp();
-            audioPlayer.getAd().resetAd();
-            continue;
-          } else {
-            audioPlayer
-                .getAd()
-                .setLeftTimestamp(audioPlayer.getAd().getLeftTimestamp() - timeToAddCopy);
-            break;
-          }
-        }
-
-        long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
-        if (timeToFinish <= 0) {
-          timeToFinish = timeToAddCopy;
-        }
-
-        setElapsedTime(getElapsedTime() + timeToFinish);
-
-        long remainingSongTime = getRemainingTime(audioPlayer);
-
-        Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
-        timeToAddCopy -= timeToFinish;
-
-        if (currentSong == null && audioPlayer.getAdShouldBePlayed()) {
-          audioPlayer.startAd(currentTimestamp);
-        }
-
-        currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
-        if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
-          if (audioPlayer.getAdShouldBePlayed()) {
-            audioPlayer.startAd(currentTimestamp);
-          } else {
-            history.add(currentSong, currentTimestamp);
-
-            if (audioPlayer.getOwner().getPremiumState() == UserPremiumState.PREMIUM) {
-              history.getPremiumSongs().add(currentSong);
-            } else {
-              history.getFreeSongs().add(currentSong);
-            }
-          }
-        }
-      }
+      noRepeat(audioPlayer, timeToAdd, history);
     }
 
     return history;
@@ -263,5 +190,107 @@ public final class PlaylistTimeManagerStrategy extends TimeManagerStrategy {
     assert playingSong != null;
     timeToRewind = playlist.getBeginningOfSongDuration(playingSong);
     setElapsedTime(timeToRewind);
+  }
+
+  private void noRepeat(
+      final AudioPlayer audioPlayer, final long timeToAdd, final History history) {
+    long timeToAddCopy = timeToAdd;
+    long currentTimestamp = timeToAdd + getLastTimeUpdated();
+
+    while (timeToAddCopy > 0) {
+      if (audioPlayer.isAdBeingPlayed()) {
+        if (timeToAddCopy >= audioPlayer.getAd().getLeftTimestamp()) {
+          timeToAddCopy -= audioPlayer.getAd().getLeftTimestamp();
+          audioPlayer.getAd().resetAd();
+          beginningOfSongChecks(audioPlayer, history, currentTimestamp);
+        } else {
+          audioPlayer
+              .getAd()
+              .setLeftTimestamp(audioPlayer.getAd().getLeftTimestamp() - timeToAddCopy);
+          break;
+        }
+      }
+
+      long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
+      if (timeToFinish <= 0) {
+        timeToFinish = timeToAddCopy;
+      }
+
+      setElapsedTime(getElapsedTime() + timeToFinish);
+      timeToAddCopy -= timeToFinish;
+      currentTimestamp = getLastTimeUpdated() + timeToAdd - timeToAddCopy;
+
+      /**
+       * this checks if the player is at the beginning of a song and decides if it gets added to the
+       * history or an Ad starts*
+       */
+      beginningOfSongChecks(audioPlayer, history, currentTimestamp);
+    }
+  }
+
+  private void beginningOfSongChecks(
+      final AudioPlayer audioPlayer, final History history, final long currentTimestamp) {
+    long remainingSongTime = getRemainingTime(audioPlayer);
+    Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+
+    if (currentSong == null && audioPlayer.getAdShouldBePlayed()) {
+      audioPlayer.startAd(currentTimestamp);
+    }
+
+    if (currentSong != null && currentSong.getDuration() == remainingSongTime) {
+      if (audioPlayer.getAdShouldBePlayed()) {
+        audioPlayer.startAd(currentTimestamp);
+      } else {
+        history.add(currentSong, currentTimestamp);
+
+        if (audioPlayer.getOwner().getPremiumState() == UserPremiumState.PREMIUM) {
+          history.getPremiumSongs().add(currentSong);
+        } else {
+          history.getFreeSongs().add(currentSong);
+        }
+      }
+    }
+  }
+
+  private void repeatAll(
+      final AudioPlayer audioPlayer, final long timeToAdd, final History history) {
+    long timeToAddCopy = timeToAdd;
+    long currentTimestamp = timeToAdd + getLastTimeUpdated();
+    Playlist playlist = getPlaylistFromPlayer(audioPlayer);
+
+    while (timeToAddCopy > 0) {
+      long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAdd);
+
+      long timeToCheck = getRemainingTime(audioPlayer);
+      setElapsedTime((getElapsedTime() + timeToFinish) % playlist.getDuration());
+
+      if (timeToFinish >= timeToCheck) {
+        Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+        history.add(currentSong, currentTimestamp);
+      }
+
+      timeToAddCopy -= timeToFinish;
+    }
+  }
+
+  private void repeatCurrentSong(
+      final AudioPlayer audioPlayer, final long timeToAdd, final History history) {
+    long currentTimestamp = timeToAdd + getLastTimeUpdated();
+    Playlist playlist = getPlaylistFromPlayer(audioPlayer);
+
+    Song currentSong = (Song) getPlayingAudioEntity(audioPlayer);
+    int beginningOfSongTime = playlist.getBeginningOfSongDuration(currentSong);
+    int currentTimeInSong = (int) (getElapsedTime() - beginningOfSongTime);
+    assert currentSong != null;
+
+    int numberOfLoops = (int) ((currentTimeInSong + timeToAdd) / currentSong.getDuration());
+    while (numberOfLoops != 0) {
+      history.add(currentSong, currentTimestamp);
+      numberOfLoops--;
+    }
+
+    // Make sure the playback doesn't go over the current song and loops inside it
+    int repeatTimeInSong = (int) ((currentTimeInSong + timeToAdd) % currentSong.getDuration());
+    setElapsedTime((long) (beginningOfSongTime + repeatTimeInSong));
   }
 }

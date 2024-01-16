@@ -1,6 +1,9 @@
 package app.recommendations.strategy.concrete;
 
-import static app.searchbar.SearchType.SONG;
+import static app.Constants.SONGS_FIRST_GENRE;
+import static app.Constants.SONGS_SECOND_GENRE;
+import static app.Constants.SONGS_THIRD_GENRE;
+import static app.Constants.RANDOM_PLAYLIST_LIMIT;
 
 import app.Constants;
 import app.recommendations.strategy.RecommendationStrategy;
@@ -15,25 +18,15 @@ import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
 
-public class RandomPlaylistRecommendationStrategy implements RecommendationStrategy {
-  private static void addLikedSongs(User user, Map<String, Integer> genres) {
+public final class RandomPlaylistRecommendationStrategy implements RecommendationStrategy {
+  private static void addLikedSongs(final User user, final Map<String, Integer> genres) {
     for (Song song : user.getLikedSongs()) {
       genres.put(song.getGenre(), genres.getOrDefault(song.getGenre(), 0) + 1);
     }
-//    for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-//      if (entry.getKey().getType() == SONG) {
-//        String genre = ((Song) entry.getKey()).getGenre();
-//
-//        if (genres.containsKey(genre)) {
-//          genres.put(genre, genres.get(genre) + entry.getValue());
-//        } else {
-//          genres.put(genre, entry.getValue());
-//        }
-//      }
-//    }
   }
 
-  private static void addPlaylistsSongs(List<Playlist> playlists, Map<String, Integer> genres) {
+  private static void addPlaylistsSongs(
+      final List<Playlist> playlists, final Map<String, Integer> genres) {
     for (Playlist playlist : playlists) {
       for (Song song : playlist.getSongs()) {
         String genre = song.getGenre();
@@ -47,8 +40,10 @@ public class RandomPlaylistRecommendationStrategy implements RecommendationStrat
     }
   }
 
-  private boolean appendTopKSongsForGenre(List<Song> result, int k, String genre) {
-    List<Song> songs = Library.getInstance().getSongs().stream()
+  private boolean appendTopKSongsForGenre(
+      final List<Song> result, final int k, final String genre) {
+    List<Song> songs =
+        Library.getInstance().getSongs().stream()
             .filter(song -> song.getGenre().equals(genre) && !result.contains(song))
             .sorted((s1, s2) -> s2.getNumberOfLikes() - s1.getNumberOfLikes())
             .limit(k)
@@ -63,14 +58,14 @@ public class RandomPlaylistRecommendationStrategy implements RecommendationStrat
   }
 
   @Override
-  public AudioEntity getRecommendation(User user) {
+  public AudioEntity getRecommendation(final User user) {
     List<String> top3Genres = getTop3Genres(user);
 
     List<Song> playlistSongs = new ArrayList<>();
-    List<Integer> limits = List.of(5, 3, 2);
+    List<Integer> limits = List.of(SONGS_FIRST_GENRE, SONGS_SECOND_GENRE, SONGS_THIRD_GENRE);
 
     for (int i = 0; i < top3Genres.size(); i++) {
-      if (appendTopKSongsForGenre(playlistSongs, limits.get(i), top3Genres.get(i)) == false) {
+      if (!appendTopKSongsForGenre(playlistSongs, limits.get(i), top3Genres.get(i))) {
         return null;
       }
     }
@@ -83,62 +78,9 @@ public class RandomPlaylistRecommendationStrategy implements RecommendationStrat
     return new Playlist(playlistName, playlistSongs, user);
   }
 
-  private List<String> getTop3Genres(User user) {
+  private List<String> getTop3Genres(final User user) {
     Map<String, Integer> genres = new LinkedHashMap<>();
     List<String> top3Genres = new ArrayList<>();
-
-//    addLikedSongs(user, genres);
-//
-//    Map<String, Integer> likedSongsGenres = genres.entrySet().stream()
-//            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-//            .limit(Constants.PRINT_LIMIT)
-//            .collect(
-//                    Collectors.toMap(
-//                            Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-//
-//    if (!likedSongsGenres.isEmpty()) {
-//      Map.Entry<String, Integer> firstEntry = likedSongsGenres.entrySet().iterator().next();
-//
-//      if (!top3Genres.contains(firstEntry.getKey())) {
-//        top3Genres.add(firstEntry.getKey());
-//      }
-//    }
-//
-//    genres.clear();
-//    addPlaylistsSongs(user.getOwnedPlaylists(), genres);
-//
-//    Map<String, Integer> ownedPlaylistsGenres = genres.entrySet().stream()
-//            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-//            .limit(Constants.PRINT_LIMIT)
-//            .collect(
-//                    Collectors.toMap(
-//                            Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-//
-//    if (!ownedPlaylistsGenres.isEmpty()) {
-//      Map.Entry<String, Integer> firstEntry = ownedPlaylistsGenres.entrySet().iterator().next();
-//
-//      if (!top3Genres.contains(firstEntry.getKey())) {
-//        top3Genres.add(firstEntry.getKey());
-//      }
-//    }
-//
-//    genres.clear();
-//    addPlaylistsSongs(user.getFollowedPlaylists(), genres);
-//
-//    Map<String, Integer> followedPlaylistsGenres = genres.entrySet().stream()
-//            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-//            .limit(Constants.PRINT_LIMIT)
-//            .collect(
-//                    Collectors.toMap(
-//                            Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-//
-//    if (!followedPlaylistsGenres.isEmpty()) {
-//      Map.Entry<String, Integer> firstEntry = followedPlaylistsGenres.entrySet().iterator().next();
-//
-//      if (!top3Genres.contains(firstEntry.getKey())) {
-//        top3Genres.add(firstEntry.getKey());
-//      }
-//    }
 
     addLikedSongs(user, genres);
     addPlaylistsSongs(user.getOwnedPlaylists(), genres);
@@ -157,7 +99,7 @@ public class RandomPlaylistRecommendationStrategy implements RecommendationStrat
       top3Genres.add(entry.getKey());
 
       cnt++;
-      if (cnt == 3) {
+      if (cnt == RANDOM_PLAYLIST_LIMIT) {
         break;
       }
     }

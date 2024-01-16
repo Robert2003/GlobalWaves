@@ -4,21 +4,18 @@ import app.Constants;
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
-import app.pagination.concretepages.ArtistPage;
-import app.pagination.enums.PageType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.ArrayList;
+import java.util.List;
 import library.Library;
 import library.entities.Merch;
 import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SeeMerch implements Executable {
+public final class SeeMerch implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
     String message;
 

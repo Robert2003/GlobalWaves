@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
-import library.users.User;
 
 /**
  * This class represents a search strategy for songs. It implements the Searchable interface and

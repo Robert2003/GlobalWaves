@@ -1,23 +1,18 @@
 package app.history;
 
-import static app.searchbar.SearchType.SONG;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
-import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class History {
+public final class History {
   private Map<AudioEntity, Integer> historyMap;
   private List<OrderedHistory> orderHistoryMap;
   private List<OrderedHistory> adsHistory;
@@ -32,7 +27,18 @@ public class History {
     setPremiumSongs(new ArrayList<>());
   }
 
-  public void add(AudioEntity entity, long timestamp) {
+  /**
+   * This method is used to add an AudioEntity to the history. If the entity is null, the method
+   * will return without doing anything. If the entity is the first song in the library, it is
+   * considered an ad and added to the ads history. If the entity is already in the history, its
+   * count is incremented and it is added to the ordered history with the current timestamp. If the
+   * entity is not in the history, it is added with a count of 1 and also added to the ordered
+   * history with the current timestamp.
+   *
+   * @param entity The AudioEntity to be added to the history.
+   * @param timestamp The timestamp at which the entity is added.
+   */
+  public void add(final AudioEntity entity, final long timestamp) {
     if (entity == null) {
       return;
     }
@@ -52,7 +58,17 @@ public class History {
     }
   }
 
-  public void add(History history, long timestamp) {
+  /**
+   * This method is used to merge another History object into this one. For each AudioEntity in the
+   * other history, if it is already in this history, its count is incremented by the count in the
+   * other history and it is added to the ordered history with the current timestamp. If it is not
+   * in this history, it is added with the count from the other history and also added to the
+   * ordered history with the current timestamp.
+   *
+   * @param history The History object to be merged into this one.
+   * @param timestamp The timestamp at which the merge is happening.
+   */
+  public void add(final History history, final long timestamp) {
     for (Map.Entry<AudioEntity, Integer> entry : history.getHistoryMap().entrySet()) {
       if (getHistoryMap().containsKey(entry.getKey())) {
         int newCount = getHistoryMap().get(entry.getKey()) + entry.getValue();
@@ -65,7 +81,15 @@ public class History {
     }
   }
 
-  public int getCount(AudioEntity entity) {
+  /**
+   * This method is used to get the count of a specific AudioEntity in the ordered history. If the
+   * entity is null, the method will return 0. The method iterates over the ordered history and
+   * increments a counter each time it encounters the specified entity.
+   *
+   * @param entity The AudioEntity whose count is to be retrieved.
+   * @return The count of the specified AudioEntity in the ordered history.
+   */
+  public int getCount(final AudioEntity entity) {
     if (entity == null) {
       return 0;
     }
@@ -78,47 +102,5 @@ public class History {
     }
 
     return cnt;
-  }
-
-  public int getIndexForTimestamp(long timestamp) {
-    for (int i = 0; i < getOrderHistoryMap().size(); i++) {
-      if (getOrderHistoryMap().get(i).getAddTimestamp() >= timestamp) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
-  public Map<User, Integer> getListenedArtistsBetween(int index1, int index2) {
-    Map<User, Integer> artists = new HashMap<>();
-
-    for (int i = index1; i <= index2; i++) {
-      AudioEntity entity = getOrderHistoryMap().get(i).getEntity();
-      if (entity.getType() == SONG) {
-        Song song = (Song) entity;
-        User artist = Library.getInstance().getUserByName(song.getArtist());
-        if (artist != null) {
-          artists.put(artist, artists.getOrDefault(artist, 0) + 1);
-        }
-      }
-    }
-
-    return artists;
-  }
-
-  public long getLastAdTimestamp() {
-    if (getAdsHistory().size() <= 1) {
-      return -1;
-    }
-
-    return getAdsHistory().get(getAdsHistory().size() - 2).getAddTimestamp();
-  }
-
-  public void removeLastAd() {
-    if (getAdsHistory().isEmpty()) {
-      return;
-    }
-//    getAdsHistory().remove(getAdsHistory().size() - 1);
   }
 }

@@ -13,9 +13,9 @@ import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-public class BuyMerch implements Executable {
+public final class BuyMerch implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
     String message;
 

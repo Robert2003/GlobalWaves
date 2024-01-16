@@ -3,7 +3,6 @@ package main;
 import app.commands.CommandManager;
 import app.commands.CommandReader;
 import app.commands.executables.EndProgram;
-import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
 import app.monetization.payment.PremiumPaymentStrategy;
@@ -24,6 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import library.Library;
 import library.users.User;
+
+import static app.Constants.PREMIUM_CREDIT;
 
 public final class Main {
   static final String LIBRARY_PATH = CheckerConstants.TESTS_PATH + "library/library.json";
@@ -95,9 +96,9 @@ public final class Main {
       }
     }
 
-    for (User user : Library.getInstance().getNormalUsers()){
+    for (User user : Library.getInstance().getNormalUsers()) {
       if (user.getPremiumState() == UserPremiumState.PREMIUM) {
-        new PremiumPaymentStrategy().pay(user, 0);
+        new PremiumPaymentStrategy().pay(user, PREMIUM_CREDIT);
       }
     }
 

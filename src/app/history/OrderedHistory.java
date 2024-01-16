@@ -7,18 +7,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderedHistory {
-	private AudioEntity entity;
-	private long addTimestamp;
-	private int price;
+  private AudioEntity entity;
+  private long addTimestamp;
+  private int price;
 
-	public OrderedHistory(AudioEntity entity, long addTimestamp) {
-		this.entity = entity;
-		this.addTimestamp = addTimestamp;
-	}
+  public OrderedHistory(final AudioEntity entity, final long addTimestamp) {
+    this.entity = entity;
+    this.addTimestamp = addTimestamp;
+  }
 
-	public OrderedHistory(AudioEntity entity, long addTimestamp, int price) {
-		this.entity = entity;
-		this.addTimestamp = addTimestamp;
-		this.price = price;
-	}
+  public OrderedHistory(final AudioEntity entity, final long addTimestamp, final int price) {
+    this.entity = entity;
+    this.addTimestamp = addTimestamp;
+    this.price = price;
+  }
 }

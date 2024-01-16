@@ -11,9 +11,6 @@ import app.io.nodes.output.NextPrevOutputNode;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Episode;
-import library.entities.audio.audioFiles.Song;
-
-import static app.searchbar.SearchType.NOT_INITIALIZED;
 
 /**
  * The PodcastTimeManagerStrategy class is a concrete implementation of the TimeManagerStrategy
@@ -37,8 +34,9 @@ public final class PodcastTimeManagerStrategy extends TimeManagerStrategy {
     while (timeToAddCopy > 0) {
       long timeToFinish = Math.min(getRemainingTime(audioPlayer), timeToAddCopy);
 
-      if (timeToFinish <= 0)
+      if (timeToFinish <= 0) {
         timeToFinish = timeToAddCopy;
+      }
 
       long remainingSongTime = getRemainingTime(audioPlayer);
 

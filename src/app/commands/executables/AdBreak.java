@@ -3,7 +3,6 @@ package app.commands.executables;
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
-import app.monetization.subscription.UserPremiumState;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.entities.audio.audioFiles.Song;
@@ -14,10 +13,10 @@ import lombok.Setter;
 import static app.Constants.DOESNT_EXIST;
 import static app.Constants.THE_USERNAME;
 
-public class AdBreak implements Executable {
+public final class AdBreak implements Executable {
 
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {

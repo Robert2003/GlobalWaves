@@ -14,7 +14,6 @@ import app.commands.Executable;
 import app.helpers.UserType;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
-import app.searchbar.SearchType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import library.Library;
 import library.entities.audio.audio.collections.Album;
@@ -39,14 +38,13 @@ public final class RemoveAlbum implements Executable {
     }
 
     if (!artistHasAlbum(command)) {
-      return new RemoveAlbumOutputNode(
-          command, command.getUsername() + NO_ALBUM_ERROR_MESSAGE);
+      return new RemoveAlbumOutputNode(command, command.getUsername() + NO_ALBUM_ERROR_MESSAGE);
     }
 
-    Album album = Library.getInstance().getAlbumByName(command.getName(), command.getUsername());
+    Album album =
+        Library.getInstance().getAlbumByNameAndArtist(command.getName(), command.getUsername());
     if (isSomeoneInteracting(album)) {
-      return new RemoveAlbumOutputNode(
-          command, command.getUsername() + REMOVE_ALBUM_ERROR_MESSAGE);
+      return new RemoveAlbumOutputNode(command, command.getUsername() + REMOVE_ALBUM_ERROR_MESSAGE);
     }
 
     for (Song song : album.getSongs()) {
@@ -77,7 +75,8 @@ public final class RemoveAlbum implements Executable {
         return true;
       }
 
-      if (user.getAudioPlayer().hasLoadedTrack() && user.getAudioPlayer().getLoadedTrack().getType() == PLAYLIST) {
+      if (user.getAudioPlayer().hasLoadedTrack()
+          && user.getAudioPlayer().getLoadedTrack().getType() == PLAYLIST) {
         Playlist playlist = (Playlist) user.getAudioPlayer().getLoadedTrack();
         for (Song song : playlist.getSongs()) {
           if (song.getAlbum().equals(albumToBeDeleted.getName())) {
@@ -86,7 +85,8 @@ public final class RemoveAlbum implements Executable {
         }
       }
 
-      if (user.getAudioPlayer().hasLoadedTrack() && user.getAudioPlayer().getLoadedTrack().getType() == ALBUM) {
+      if (user.getAudioPlayer().hasLoadedTrack()
+          && user.getAudioPlayer().getLoadedTrack().getType() == ALBUM) {
         Album album = (Album) user.getAudioPlayer().getLoadedTrack();
         for (Song song : album.getSongs()) {
           if (song.getAlbum().equals(albumToBeDeleted.getName())) {
@@ -95,7 +95,8 @@ public final class RemoveAlbum implements Executable {
         }
       }
 
-      if (user.getAudioPlayer().hasLoadedTrack() && user.getAudioPlayer().getLoadedTrack().getType() == SONG) {
+      if (user.getAudioPlayer().hasLoadedTrack()
+          && user.getAudioPlayer().getLoadedTrack().getType() == SONG) {
         Song song = (Song) user.getAudioPlayer().getLoadedTrack();
         if (song.getAlbum().equals(albumToBeDeleted.getName())) {
           return true;

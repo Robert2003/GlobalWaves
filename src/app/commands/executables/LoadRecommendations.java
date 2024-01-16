@@ -1,5 +1,7 @@
 package app.commands.executables;
 
+import static app.searchbar.SearchType.SONG;
+
 import app.Constants;
 import app.audio.player.states.PlayerPlayPauseStates;
 import app.commands.Executable;
@@ -13,11 +15,9 @@ import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
 
-import static app.searchbar.SearchType.SONG;
-
-public class LoadRecommendations implements Executable {
+public final class LoadRecommendations implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {
@@ -38,7 +38,7 @@ public class LoadRecommendations implements Executable {
     return load(command, lastRecommendation);
   }
 
-  private PlayerOutputNode load(final InputNode command, AudioEntity lastRecommendation) {
+  private PlayerOutputNode load(final InputNode command, final AudioEntity lastRecommendation) {
     User user = Library.getInstance().getUserByName(command.getUsername());
 
     user.getAudioPlayer().setLoadedTrack(lastRecommendation);
@@ -60,7 +60,7 @@ public class LoadRecommendations implements Executable {
       }
     }
 
-      user.getAudioPlayer().getAd().resetAd();
+    user.getAudioPlayer().getAd().resetAd();
 
     return new PlayerOutputNode(command, Constants.LOAD_NO_ERROR_MESSAGE);
   }

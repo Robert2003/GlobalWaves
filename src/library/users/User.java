@@ -1,5 +1,8 @@
 package library.users;
 
+import static app.Constants.PREMIUM_CREDIT;
+import static app.monetization.subscription.UserPremiumState.FREE;
+
 import app.audio.player.AudioPlayer;
 import app.helpers.ConnectionStatus;
 import app.helpers.UserType;
@@ -24,7 +27,6 @@ import app.searchbar.SearchType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
-
 import library.Library;
 import library.entities.Announcement;
 import library.entities.Event;
@@ -33,12 +35,8 @@ import library.entities.audio.audio.collections.Album;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Song;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import static app.monetization.subscription.UserPremiumState.FREE;
 
 /** Represents a User in the music player application. */
 @Getter
@@ -153,14 +151,16 @@ public final class User implements Subject, Observer {
 
     if (type == PageType.HOST_PAGE) {
       String hostName = null;
-      if (getAudioPlayer().hasLoadedTrack() && getAudioPlayer().getLoadedTrack().getType() == SearchType.PODCAST) {
-        hostName = ((Podcast)getAudioPlayer().getLoadedTrack()).getOwner();
+      if (getAudioPlayer().hasLoadedTrack()
+          && getAudioPlayer().getLoadedTrack().getType() == SearchType.PODCAST) {
+        hostName = ((Podcast) getAudioPlayer().getLoadedTrack()).getOwner();
       }
       ((HostPage) newPage).setHostName(hostName);
     } else if (type == PageType.ARTIST_PAGE) {
       String artistName = null;
-      if (getAudioPlayer().hasLoadedTrack() && getAudioPlayer().getLoadedTrack().getType() == SearchType.ALBUM) {
-        artistName = ((Podcast)getAudioPlayer().getLoadedTrack()).getOwner();
+      if (getAudioPlayer().hasLoadedTrack()
+          && getAudioPlayer().getLoadedTrack().getType() == SearchType.ALBUM) {
+        artistName = ((Podcast) getAudioPlayer().getLoadedTrack()).getOwner();
       }
       ((ArtistPage) newPage).setArtistName(artistName);
     }
@@ -218,15 +218,29 @@ public final class User implements Subject, Observer {
     return null;
   }
 
+  /**
+   * Retrieves a Merch object by its name from the list of merch of the user. Iterates over the list
+   * of merch and returns the first merch that matches the provided name. If no merch is found with
+   * the provided name, returns null.
+   *
+   * @param name The name of the merch to be retrieved.
+   * @return The merch with the provided name, or null if no such merch is found.
+   */
   public Merch getMerchByName(final String name) {
-    for (Merch merch : this.getMerch()) {
-      if (merch.getName().equals(name)) {
-        return merch;
+    for (Merch currentMerch : this.getMerch()) {
+      if (currentMerch.getName().equals(name)) {
+        return currentMerch;
       }
     }
     return null;
   }
 
+  /**
+   * Retrieves a list of Album objects owned by a specific user. This method iterates over all the
+   * albums in the library and adds to the list those that are owned by the user.
+   *
+   * @return A list of Album objects owned by the user.
+   */
   public List<Album> getAlbums() {
     List<Album> albums = new ArrayList<>();
 
@@ -238,7 +252,14 @@ public final class User implements Subject, Observer {
     return albums;
   }
 
-  public boolean hasAlbum(String albumName) {
+  /**
+   * Checks if the user owns an album with the specified name. This method iterates over all the
+   * albums owned by the user and returns true if an album with the provided name is found.
+   *
+   * @param albumName The name of the album to search for.
+   * @return True if the user owns an album with the specified name, false otherwise.
+   */
+  public boolean hasAlbum(final String albumName) {
     List<Album> albums = getAlbums();
 
     for (Album album : albums) {
@@ -251,24 +272,24 @@ public final class User implements Subject, Observer {
   }
 
   @Override
-  public void addObserver(Observer observer) {
+  public void addObserver(final Observer observer) {
     getObservers().add(observer);
   }
 
   @Override
-  public void removeObserver(Observer observer) {
+  public void removeObserver(final Observer observer) {
     getObservers().remove(observer);
   }
 
   @Override
-  public void notifyObservers(Notification notification) {
+  public void notifyObservers(final Notification notification) {
     for (Observer observer : observers) {
       observer.update(notification);
     }
   }
 
   @Override
-  public void update(Notification notification) {
+  public void update(final Notification notification) {
     getNotifications().add(notification);
   }
 
@@ -276,12 +297,19 @@ public final class User implements Subject, Observer {
     return getPremiumHistory().getCurrentState();
   }
 
-  public void togglePremiumState(long currentTimestamp) {
+  /**
+   * Toggles the premium state of the user. If the user is currently a free user, their state is
+   * changed to premium. If the user is currently a premium user, their state is changed to free,
+   * and a payment is made using the PremiumPaymentStrategy.
+   *
+   * @param currentTimestamp The current timestamp, used to record when the state change occurred.
+   */
+  public void togglePremiumState(final long currentTimestamp) {
     if (getPremiumState() == FREE) {
       getPremiumHistory().addState(UserPremiumState.PREMIUM, currentTimestamp);
     } else {
       getPremiumHistory().addState(UserPremiumState.FREE, currentTimestamp);
-      new PremiumPaymentStrategy().pay(this, 0);
+      new PremiumPaymentStrategy().pay(this, PREMIUM_CREDIT);
     }
   }
 }

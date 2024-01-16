@@ -1,159 +1,191 @@
 package app.wrapped;
 
+import static app.searchbar.SearchType.NOT_INITIALIZED;
+import static app.searchbar.SearchType.SONG;
+
 import app.Constants;
 import app.commands.Executable;
 import app.commands.executables.Wrapped;
 import app.history.OrderedHistory;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
-import app.pagination.Page;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+public final class UserWrappedStrategy implements Executable {
+  @Override
+  public Node execute(final InputNode command) {
+    Wrapped.WrappedOutputNode out = new Wrapped.WrappedOutputNode(command);
 
-import static app.searchbar.SearchType.NOT_INITIALIZED;
-import static app.searchbar.SearchType.SONG;
+    User user = Library.getInstance().getUserByName(command.getUsername());
 
-public class UserWrappedStrategy implements Executable {
-	@Override
-	public Node execute(InputNode command) {
-		Wrapped.WrappedOutputNode out = new Wrapped.WrappedOutputNode(command);
+    out.getResult().setTopSongs(getTop5Songs(user));
+    out.getResult().setTopEpisodes(getTop5Episodes(user));
+    out.getResult().setTopAlbums(getTop5Albums(user));
+    out.getResult().setTopGenres(getTop5Genres(user));
+    out.getResult().setTopArtists(getTop5Artists(user));
 
-		User user = Library.getInstance().getUserByName(command.getUsername());
+    if (out.getResult().getTopSongs().isEmpty()
+        && out.getResult().getTopAlbums().isEmpty()
+        && out.getResult().getTopGenres().isEmpty()
+        && out.getResult().getTopEpisodes().isEmpty()
+        && out.getResult().getTopArtists().isEmpty()) {
+      out.setResult(null);
+      out.setMessage("No data to show for user " + command.getUsername() + ".");
+    }
 
-		out.getResult().setTopSongs(getTop5Songs(user));
-		out.getResult().setTopEpisodes(getTop5Episodes(user));
-		out.getResult().setTopAlbums(getTop5Albums(user));
-		out.getResult().setTopGenres(getTop5Genres(user));
-		out.getResult().setTopArtists(getTop5Artists(user));
+    return out;
+  }
 
-		if (out.getResult().getTopSongs().isEmpty()
-				&& out.getResult().getTopAlbums().isEmpty()
-				&& out.getResult().getTopGenres().isEmpty()
-				&& out.getResult().getTopEpisodes().isEmpty()
-				&& out.getResult().getTopArtists().isEmpty()) {
-			out.setResult(null);
-			out.setMessage("No data to show for user " + command.getUsername() + ".");
-		}
+  /**
+   * Retrieves the top 5 songs listened to by the user based on their history.
+   *
+   * @param user The user for whom the top songs are to be retrieved.
+   * @return A map of song names and their respective play counts.
+   */
+  public Map<String, Integer> getTop5Songs(final User user) {
+    Map<String, Integer> top5Songs = new LinkedHashMap<>();
+    for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
+      if (order.getEntity().getType() == SONG
+          && !order.getEntity().equals(Library.getInstance().getSongs().get(0))) {
+        Song song = (Song) order.getEntity();
+        top5Songs.put(song.getName(), user.getHistory().getCount(song));
+      }
+    }
 
-		return out;
-	}
+    return top5Songs.entrySet().stream()
+        .sorted(
+            Map.Entry.<String, Integer>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry::getKey))
+        .limit(Constants.PRINT_LIMIT)
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+  }
 
-	public Map<String, Integer> getTop5Songs(final User user) {
-        Map<String, Integer> top5Songs = new LinkedHashMap<>();
-		for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
-			if (order.getEntity().getType() == SONG && !order.getEntity().equals(Library.getInstance().getSongs().get(0))) {
-				Song song = (Song) order.getEntity();
-				top5Songs.put(song.getName(), user.getHistory().getCount(song));
-			}
-		}
+  /**
+   * Retrieves the top 5 episodes listened to by the user based on their history.
+   *
+   * @param user The user for whom the top episodes are to be retrieved.
+   * @return A map of episode names and their respective play counts.
+   */
+  public Map<String, Integer> getTop5Episodes(final User user) {
+    return user.getHistory().getHistoryMap().entrySet().stream()
+        .filter(entry -> entry.getKey().getType() == NOT_INITIALIZED)
+        .sorted(
+            Map.Entry.<AudioEntity, Integer>comparingByValue()
+                .reversed()
+                .thenComparing(entry -> entry.getKey().getName())
+                .reversed()
+                .reversed())
+        .limit(Constants.PRINT_LIMIT)
+        .collect(
+            Collectors.toMap(
+                entry -> entry.getKey().getName(),
+                Map.Entry::getValue,
+                (e1, e2) -> e1,
+                LinkedHashMap::new));
+  }
 
-		return top5Songs.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
-				.limit(Constants.PRINT_LIMIT)
-				.collect(
-						Collectors.toMap(
-								Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-	}
+  /**
+   * Retrieves the top 5 albums listened to by the user based on their history.
+   *
+   * @param user The user for whom the top albums are to be retrieved.
+   * @return A map of album names and their respective play counts.
+   */
+  public Map<String, Integer> getTop5Albums(final User user) {
+    Map<String, Integer> albums = new HashMap<>();
 
-	public Map<String, Integer> getTop5Episodes(final User user) {
-		return user.getHistory().getHistoryMap().entrySet().stream()
-				.filter(entry -> entry.getKey().getType() == NOT_INITIALIZED)
-				.sorted(
-						Map.Entry.<AudioEntity, Integer>comparingByValue().reversed()
-								.thenComparing(entry -> entry.getKey().getName()).reversed()
-								.reversed())
-				.limit(Constants.PRINT_LIMIT)
-				.collect(
-						Collectors.toMap(
-								entry -> entry.getKey().getName(),
-								Map.Entry::getValue,
-								(e1, e2) -> e1,
-								LinkedHashMap::new));
-	}
+    for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
+      if (entry.getKey().getType() == SONG
+          && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
+        String albumName = ((Song) entry.getKey()).getAlbum();
 
-	public Map<String, Integer> getTop5Albums(final User user) {
-		Map<String, Integer> albums = new HashMap<>();
+        if (albums.containsKey(albumName)) {
+          albums.put(albumName, albums.get(albumName) + entry.getValue());
+        } else {
+          albums.put(albumName, entry.getValue());
+        }
+      }
+    }
 
-		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-			if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
-				String albumName = ((Song) entry.getKey()).getAlbum();
+    return albums.entrySet().stream()
+        .sorted(
+            Map.Entry.<String, Integer>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry::getKey))
+        .limit(Constants.PRINT_LIMIT)
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+  }
 
-				if (albums.containsKey(albumName)) {
-					albums.put(albumName, albums.get(albumName) + entry.getValue());
-				} else {
-					albums.put(albumName, entry.getValue());
-				}
-			}
-		}
+  /**
+   * Retrieves the top 5 genres listened to by the user based on their history.
+   *
+   * @param user The user for whom the top genres are to be retrieved.
+   * @return A map of genre names and their respective play counts.
+   */
+  public Map<String, Integer> getTop5Genres(final User user) {
+    Map<String, Integer> genres = new HashMap<>();
 
-		return albums.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
-				.limit(Constants.PRINT_LIMIT)
-				.collect(
-						Collectors.toMap(
-								Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-	}
+    for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
+      if (entry.getKey().getType() == SONG
+          && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
+        String genre = ((Song) entry.getKey()).getGenre();
 
-	public Map<String, Integer> getTop5Genres(final User user) {
-		Map<String, Integer> genres = new HashMap<>();
+        if (genres.containsKey(genre)) {
+          genres.put(genre, genres.get(genre) + entry.getValue());
+        } else {
+          genres.put(genre, entry.getValue());
+        }
+      }
+    }
 
-		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-			if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
-				String genre = ((Song) entry.getKey()).getGenre();
+    return genres.entrySet().stream()
+        .sorted(
+            Map.Entry.<String, Integer>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry::getKey))
+        .limit(Constants.PRINT_LIMIT)
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+  }
 
-				if (genres.containsKey(genre)) {
-					genres.put(genre, genres.get(genre) + entry.getValue());
-				} else {
-					genres.put(genre, entry.getValue());
-				}
-			}
-		}
+  /**
+   * Retrieves the top 5 artists listened to by the user based on their history.
+   *
+   * @param user The user for whom the top artists are to be retrieved.
+   * @return A map of artist names and their respective play counts.
+   */
+  public Map<String, Integer> getTop5Artists(final User user) {
+    Map<String, Integer> artists = new HashMap<>();
 
-		return genres.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
-				.limit(Constants.PRINT_LIMIT)
-				.collect(
-						Collectors.toMap(
-								Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-	}
+    for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
+      if (order.getEntity().getType() == SONG) {
+        Song song = (Song) order.getEntity();
 
-	public Map<String, Integer> getTop5Artists(final User user) {
-		Map<String, Integer> artists = new HashMap<>();
+        int newCnt = artists.getOrDefault(song.getArtist(), 0) + 1;
+        artists.put(song.getArtist(), newCnt);
+      }
+    }
 
-		for (OrderedHistory order : user.getHistory().getOrderHistoryMap()) {
-			if (order.getEntity().getType() == SONG) {
-				Song song = (Song) order.getEntity();
-
-				int newCnt = artists.getOrDefault(song.getArtist(), 0) + 1;
-				artists.put(song.getArtist(), newCnt);
-			}
-		}
-
-//		for (Map.Entry<AudioEntity, Integer> entry : user.getHistory().getHistoryMap().entrySet()) {
-//			if (entry.getKey().getType() == SONG && !entry.getKey().equals(Library.getInstance().getSongs().get(0))) {
-//				String artistName = ((Song) entry.getKey()).getArtist();
-//
-//				if (artists.containsKey(artistName)) {
-//					artists.put(artistName, artists.get(artistName) + entry.getValue());
-//				} else {
-//					artists.put(artistName, entry.getValue());
-//				}
-//			}
-//		}
-
-		return artists.entrySet().stream()
-				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
-				.limit(Constants.PRINT_LIMIT)
-				.collect(
-						Collectors.toMap(
-								Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-	}
+    return artists.entrySet().stream()
+        .sorted(
+            Map.Entry.<String, Integer>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry::getKey))
+        .limit(Constants.PRINT_LIMIT)
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+  }
 }

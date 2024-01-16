@@ -2,7 +2,6 @@ package app.commands.executables;
 
 import static app.Constants.DOESNT_EXIST;
 import static app.Constants.THE_USERNAME;
-import static app.monetization.subscription.UserPremiumState.FREE;
 import static app.monetization.subscription.UserPremiumState.PREMIUM;
 
 import app.commands.Executable;
@@ -14,9 +13,9 @@ import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-public class CancelPremium implements Executable {
+public final class CancelPremium implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {
@@ -24,8 +23,7 @@ public class CancelPremium implements Executable {
     }
 
     if (user.getPremiumState() != PREMIUM) {
-      return new BuyPremiumOutputNode(
-          command, command.getUsername() + " is not a premium user.");
+      return new BuyPremiumOutputNode(command, command.getUsername() + " is not a premium user.");
     }
 
     user.togglePremiumState(command.getTimestamp());

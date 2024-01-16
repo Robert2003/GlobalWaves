@@ -1,14 +1,21 @@
 package app;
 
 public final class Constants {
-	public static final int RECOMMENDATION_TIME = 30;
+  public static final int RECOMMENDATION_TIME = 30;
 
-	private Constants() {
+  private Constants() {
   }
 
   public static final int PRINT_LIMIT = 5;
+  public static final int RANDOM_PLAYLIST_LIMIT = 3;
+  public static final int SONGS_FIRST_GENRE = 5;
+  public static final int SONGS_SECOND_GENRE = 3;
+  public static final int SONGS_THIRD_GENRE = 2;
+  public static final int AD_LENGTH = 10;
   public static final int FORWARD_TIME = 90;
   public static final int BACKWARD_TIME = 90;
+  public static final double PRECISION_FACTOR = 100.0;
+  public static final double PREMIUM_CREDIT = 1E6;
   public static final String LOADED_SOURCE_NOT_PLAYLIST_ERROR =
       "The loaded source is not a playlist or an album.";
   public static final String SELECTED_SOURCE_NOT_PLAYLIST_ERROR =

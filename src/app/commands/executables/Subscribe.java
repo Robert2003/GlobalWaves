@@ -1,6 +1,9 @@
 package app.commands.executables;
 
-import app.Constants;
+import static app.Constants.DOESNT_EXIST;
+import static app.Constants.THE_USERNAME;
+import static app.pagination.enums.PageType.HOST_PAGE;
+
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
@@ -14,14 +17,9 @@ import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import static app.Constants.DOESNT_EXIST;
-import static app.Constants.THE_USERNAME;
-import static app.helpers.UserType.HOST;
-import static app.pagination.enums.PageType.HOST_PAGE;
-
-public class Subscribe implements Executable {
+public final class Subscribe implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {

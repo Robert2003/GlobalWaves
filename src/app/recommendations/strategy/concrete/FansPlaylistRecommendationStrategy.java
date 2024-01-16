@@ -3,24 +3,21 @@ package app.recommendations.strategy.concrete;
 import static app.searchbar.SearchType.SONG;
 
 import app.Constants;
-import app.commands.executables.Wrapped;
 import app.recommendations.strategy.RecommendationStrategy;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import app.wrapped.ArtistWrappedStrategy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Playlist;
 import library.entities.audio.audioFiles.Song;
 import library.users.User;
 
-public class FansPlaylistRecommendationStrategy implements RecommendationStrategy {
-  private void appendTop5SongsForUser(List<Song> result, User user) {
-    List<Song> top5Songs = user.getLikedSongs().stream()
+public final class FansPlaylistRecommendationStrategy implements RecommendationStrategy {
+  private void appendTop5SongsForUser(final List<Song> result, final User user) {
+    List<Song> top5Songs =
+        user.getLikedSongs().stream()
             .filter(s1 -> !result.contains(s1))
             .sorted((s1, s2) -> s2.getNumberOfLikes() - s1.getNumberOfLikes())
             .limit(Constants.PRINT_LIMIT)
@@ -30,7 +27,7 @@ public class FansPlaylistRecommendationStrategy implements RecommendationStrateg
   }
 
   @Override
-  public AudioEntity getRecommendation(User user) {
+  public AudioEntity getRecommendation(final User user) {
     AudioEntity playingEntity =
         user.getAudioPlayer().getTimeManager().getPlayingAudioEntity(user.getAudioPlayer());
 

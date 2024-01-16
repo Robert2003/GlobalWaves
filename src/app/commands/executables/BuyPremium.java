@@ -1,6 +1,9 @@
 package app.commands.executables;
 
-import app.Constants;
+import static app.Constants.DOESNT_EXIST;
+import static app.Constants.THE_USERNAME;
+import static app.monetization.subscription.UserPremiumState.FREE;
+
 import app.commands.Executable;
 import app.io.nodes.Node;
 import app.io.nodes.input.InputNode;
@@ -10,13 +13,9 @@ import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import static app.Constants.DOESNT_EXIST;
-import static app.Constants.THE_USERNAME;
-import static app.monetization.subscription.UserPremiumState.FREE;
-
-public class BuyPremium implements Executable {
+public final class BuyPremium implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     User user = Library.getInstance().getUserByName(command.getUsername());
 
     if (user == null) {

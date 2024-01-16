@@ -19,9 +19,9 @@ import library.entities.audio.audio.collections.Podcast;
 import library.entities.audio.audioFiles.Episode;
 import library.users.User;
 
-public class HostWrappedStrategy implements Executable {
+public final class HostWrappedStrategy implements Executable {
   @Override
-  public Node execute(InputNode command) {
+  public Node execute(final InputNode command) {
     Wrapped.WrappedOutputNode out = new Wrapped.WrappedOutputNode(command);
 
     User host = Library.getInstance().getUserByName(command.getUsername());
@@ -39,7 +39,13 @@ public class HostWrappedStrategy implements Executable {
     return out;
   }
 
-  public Map<String, Integer> getTop5Episodes(User host) {
+  /**
+   * Retrieves the top 5 episodes by the host based on user history.
+   *
+   * @param host The host for whom the top episodes are to be retrieved.
+   * @return A map of episode names and their respective play counts.
+   */
+  public Map<String, Integer> getTop5Episodes(final User host) {
     Map<String, Integer> episodes = new LinkedHashMap<>();
 
     for (User user : Library.getInstance().getNormalUsers()) {
@@ -71,7 +77,13 @@ public class HostWrappedStrategy implements Executable {
                 Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
   }
 
-  public List<String> getTop5Fans(User host) {
+  /**
+   * Retrieves the top 5 fans of the host based on user history.
+   *
+   * @param host The host for whom the top fans are to be retrieved.
+   * @return A list of usernames of the top fans.
+   */
+  public List<String> getTop5Fans(final User host) {
     Set<String> fans = new HashSet<>();
 
     for (User user : Library.getInstance().getNormalUsers()) {
@@ -89,8 +101,8 @@ public class HostWrappedStrategy implements Executable {
     }
 
     return fans.stream()
-            .sorted(String::compareTo)
-            .limit(Constants.PRINT_LIMIT)
-            .collect(Collectors.toList());
+        .sorted(String::compareTo)
+        .limit(Constants.PRINT_LIMIT)
+        .collect(Collectors.toList());
   }
 }

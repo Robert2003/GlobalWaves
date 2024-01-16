@@ -20,13 +20,12 @@ import app.io.nodes.output.NextPrevOutputNode;
 import app.io.nodes.output.PlayerOutputNode;
 import app.io.nodes.output.StatusOutputNode;
 import app.monetization.payment.FreePaymentStrategy;
+import app.monetization.subscription.UserPremiumState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-
-import app.monetization.subscription.UserPremiumState;
 import library.Library;
 import library.entities.audio.AudioEntity;
 import library.entities.audio.audio.collections.Album;
@@ -333,6 +332,11 @@ public final class AudioPlayer {
         && this.getPlayPauseState() != PlayerPlayPauseStates.STOPPED;
   }
 
+  /**
+   * Checks if there is a loaded song/playlist/album.
+   *
+   * @return true if the music has been loaded and it is not a podcast, false otherwise.
+   */
   public boolean hasLoadedMusic() {
     if (!this.hasLoadedTrack()) {
       return false;
@@ -485,6 +489,11 @@ public final class AudioPlayer {
     }
   }
 
+  /**
+   * Checks if an advertisement should be played.
+   *
+   * @return {@code true} if the advertisement should be played, {@code false} otherwise.
+   */
   public boolean getAdShouldBePlayed() {
     if (ad == null) {
       return false;
@@ -493,7 +502,12 @@ public final class AudioPlayer {
     return ad.isShouldAdBePlayed();
   }
 
-  public void startAd(long timestamp) {
+  /**
+   * Initiates the playback of an advertisement and executes the payment for the user.
+   *
+   * @param timestamp The timestamp at which the advertisement playback is starting.
+   */
+  public void startAd(final long timestamp) {
     this.getAd().setShouldAdBePlayed(false);
     this.getAd().setAdPlaying(true);
     this.getAd().setAdStartTimestamp(timestamp);
@@ -502,6 +516,11 @@ public final class AudioPlayer {
     new FreePaymentStrategy().pay(getOwner(), this.getAd().getPrice());
   }
 
+  /**
+   * Checks if an advertisement is currently being played.
+   *
+   * @return {@code true} if an advertisement is being played, {@code false} otherwise.
+   */
   public boolean isAdBeingPlayed() {
     return this.getAd().isAdPlaying();
   }
