@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
 import library.entities.audio.AudioEntity;
+import library.entities.audio.audioFiles.Song;
 import library.users.User;
 import lombok.Getter;
 import lombok.Setter;
