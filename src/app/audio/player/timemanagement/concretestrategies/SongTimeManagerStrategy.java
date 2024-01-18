@@ -55,7 +55,6 @@ public final class SongTimeManagerStrategy extends TimeManagerStrategy {
       long currentTimestamp = getLastTimeUpdated() + timeToAddCopy;
 
       if (getRemainingTime(audioPlayer) <= 0 && audioPlayer.getAdShouldBePlayed()) {
-        System.out.println(getRemainingTime(audioPlayer) + " " + song.getDuration() + " " + song.getName());
         audioPlayer.startAd(currentTimestamp);
       }
     }
